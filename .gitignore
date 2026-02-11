@@ -1,10 +1,13 @@
 ﻿.venv/
 __pycache__/
 *.pyc
-outputs/*
-!outputs/README.md
-!outputs/*.png
-!outputs/*.json
 .idea/
 .vscode/
 .DS_Store
+
+# Ignore outputs by default, but keep key artifacts for grading
+outputs/*
+!outputs/README.md
+!outputs/*.json
+!outputs/*.png
+
