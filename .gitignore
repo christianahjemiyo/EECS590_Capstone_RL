@@ -1,7 +1,10 @@
 ﻿.venv/
 __pycache__/
 *.pyc
-outputs/
+outputs/*
+!outputs/README.md
+!outputs/*.png
+!outputs/*.json
 .idea/
 .vscode/
 .DS_Store
