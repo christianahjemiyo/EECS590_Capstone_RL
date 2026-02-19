@@ -93,3 +93,8 @@ python -m eecs590_capstone.cli.rl_train --algo q_learning
 python scripts/run_all_rl.py --runs 5
 python scripts/plot_learning_curves.py
 ```
+
+## 14) Run everything
+```powershell
+python scripts/run_everything.py
+```

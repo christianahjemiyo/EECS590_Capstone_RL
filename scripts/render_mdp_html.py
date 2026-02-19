@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+import sys
+from pathlib import Path as _Path
+
+ROOT = _Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
 import argparse
 import json
 from pathlib import Path
@@ -239,7 +247,7 @@ function renderStates(curr, next) {{
     div.className = "state";
     if (i === curr) div.classList.add("active");
     if (i === next) div.classList.add("next");
-    div.innerHTML = `<div><strong>S${i}</strong><span class="badge">${riskLabel(i)}</span></div>`;
+    div.innerHTML = `<div><strong>S${{i}}</strong><span class="badge">${{riskLabel(i)}}</span></div>`;
     container.appendChild(div);
   }}
 }}
@@ -248,12 +256,12 @@ function renderDetails(step) {{
   const el = document.getElementById("details");
   const actionName = ACTION_NAMES[step.action] ?? step.action;
   el.innerHTML = `
-    <div><strong>t</strong>: ${step.t}</div>
-    <div><strong>done</strong>: ${step.done}</div>
-    <div><strong>state</strong>: S${step.state}</div>
-    <div><strong>next</strong>: S${step.next_state}</div>
-    <div><strong>action</strong>: ${actionName}</div>
-    <div><strong>reward</strong>: ${step.reward.toFixed(3)}</div>
+    <div><strong>t</strong>: ${{step.t}}</div>
+    <div><strong>done</strong>: ${{step.done}}</div>
+    <div><strong>state</strong>: S${{step.state}}</div>
+    <div><strong>next</strong>: S${{step.next_state}}</div>
+    <div><strong>action</strong>: ${{actionName}}</div>
+    <div><strong>reward</strong>: ${{step.reward.toFixed(3)}}</div>
   `;
 }}
 
@@ -278,8 +286,8 @@ function renderSparkline() {{
   }});
 
   svg.innerHTML = `
-    <rect x="0" y="0" width="${w}" height="${h}" fill="#f8fafc"></rect>
-    <path d="${path}" stroke="#2563eb" stroke-width="2" fill="none"></path>
+    <rect x="0" y="0" width="${{w}}" height="${{h}}" fill="#f8fafc"></rect>
+    <path d="${{path}}" stroke="#2563eb" stroke-width="2" fill="none"></path>
   `;
 }}
 

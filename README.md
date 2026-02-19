@@ -139,6 +139,11 @@ python scripts/run_all_rl.py --runs 5
 python scripts/plot_learning_curves.py
 ```
 
+Run everything end-to-end:
+```powershell
+python scripts/run_everything.py
+```
+
 Run unit tests:
 ```powershell
 python -m pytest -q
