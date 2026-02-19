@@ -58,3 +58,8 @@ def rollout_policy(mdp: TabularMDP, policy: Dict[str, int], episodes: int = 2000
         "std_return": float(arr.std()),
         "terminal_rate": float(terminal_hits / episodes),
     }
+
+
+def rollout_policy_array(mdp: TabularMDP, policy: np.ndarray, episodes: int = 2000, seed: int = 7, max_steps: int = 200) -> Dict[str, float]:
+    pol = {str(i): int(a) for i, a in enumerate(policy)}
+    return rollout_policy(mdp, pol, episodes=episodes, seed=seed, max_steps=max_steps)

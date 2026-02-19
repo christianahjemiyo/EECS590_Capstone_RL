@@ -11,3 +11,14 @@ outputs/*
 !outputs/*.json
 !outputs/*.png
 
+# Ignore raw/processed data
+data/raw/*
+data/processed/*
+!data/README.md
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/processed/data_profile.md
+
+# Pytest temp directories created on Windows
+pytest-cache-files-*/
+

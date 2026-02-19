@@ -1,0 +1,12 @@
+{
+  "data_path": "data/processed/train.csv",
+  "risk_bins": [0.2, 0.5, 0.8],
+  "action_strengths": [0.0, 0.1, 0.2],
+  "action_costs": [0.0, 0.2, 0.5],
+  "reward_map": {
+    "<30": -10.0,
+    ">30": -2.0,
+    "NO": 2.0
+  },
+  "laplace": 1.0
+}

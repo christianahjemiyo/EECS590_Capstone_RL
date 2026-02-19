@@ -1,3 +1,2 @@
-﻿numpy>=1.23
-tqdm>=4.66
-matplotlib>=3.7
+pandas>=2.1
+pytest>=7.4

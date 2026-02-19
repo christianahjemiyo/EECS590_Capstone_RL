@@ -1,0 +1,12 @@
+{
+  "data_path": "data/processed/train.csv",
+  "label_col": "readmitted",
+  "action_costs": [0.0, 0.2, 0.5],
+  "reward_map": {
+    "<30": -10.0,
+    ">30": -2.0,
+    "NO": 2.0
+  },
+  "max_steps": 1,
+  "terminal_on_readmit": true
+}
