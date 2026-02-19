@@ -70,10 +70,10 @@ Baselines:
 - Risk-score threshold rule (data-driven baseline)
 
 ## Scope and Milestones
-- Version 1 (complete): data-driven env scaffold, baseline policies, evaluation CLI, dataset pipeline.
-- Version 2: integrate Kaggle dataset; define state/action mappings; generate trajectories or transition models.
-- Version 3: introduce model-free RL (MC, TD, SARSA, Q-learning).
-- Version 4: function approximation and richer state representations.
+- Phase 1 (complete): data-driven env scaffold, baseline policies, evaluation CLI, dataset pipeline.
+- Phase 2: integrate Kaggle dataset; define state/action mappings; generate trajectories or transition models.
+- Phase 3: introduce model-free RL (MC, TD, SARSA, Q-learning).
+- Phase 4: function approximation and richer state representations.
 
 ## Repository Structure
 - `src/`: RL code (envs, agents, MDP definitions, CLI).
@@ -152,13 +152,10 @@ python -m pytest -q
 - Policy visualization plots
 
 ## Future Work
-- Value iteration
-- Monte Carlo learning
-- Temporal Difference learning
-- SARSA and Q-learning
-- Eligibility traces
-- Exploration strategies
-- Function approximation methods
+- DQN and other function-approximation methods
+- More realistic transition modeling (causal or learned dynamics)
+- Richer state representations and clinical feature grouping
+- Offline policy evaluation and safety constraints
 
 ## Author
 Christianah Jemiyo  
