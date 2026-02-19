@@ -1,0 +1,10 @@
+{
+  "mdp": "outputs/mdp/mdp.npz",
+  "algo": "value_iter",
+  "gamma": 0.99,
+  "theta": 1e-10,
+  "max_iter": 10000,
+  "episodes": 2000,
+  "seed": 7,
+  "outdir": "outputs/mdp"
+}
