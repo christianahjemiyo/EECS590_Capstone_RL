@@ -1,0 +1,11 @@
+{
+  "mdp": "outputs/V2/mdp/mdp.npz",
+  "seeds": 5,
+  "base_seed": 7,
+  "rollout_episodes": 2000,
+  "online_episodes": 2000,
+  "offline_episodes": 1200,
+  "max_steps": 20,
+  "behavior_eps": 0.35,
+  "gamma": 0.99
+}
