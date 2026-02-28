@@ -1,0 +1,15 @@
+{
+  "mdp": "outputs/V2/mdp/mdp.npz",
+  "algo": "double_q_learning",
+  "episodes": 5000,
+  "max_steps": 30,
+  "alpha": 0.1,
+  "gamma": 0.99,
+  "n": 3,
+  "lam": 0.8,
+  "eps_start": 1.0,
+  "eps_end": 0.05,
+  "eps_decay": 2000,
+  "seed": 7,
+  "outdir": "outputs/V2/rl_double_q"
+}

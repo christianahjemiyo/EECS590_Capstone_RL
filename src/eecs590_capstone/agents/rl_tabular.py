@@ -289,3 +289,54 @@ def q_learning(env, episodes: int, alpha: float, gamma: float, eps_start: float,
         episode_returns=returns,
         Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
     )
+
+
+def double_q_learning(
+    env,
+    episodes: int,
+    alpha: float,
+    gamma: float,
+    eps_start: float,
+    eps_end: float,
+    decay_steps: int,
+    seed: int,
+) -> TrainResult:
+    rng = np.random.default_rng(seed)
+    Q1 = np.zeros((env.n_states, env.n_actions), dtype=float)
+    Q2 = np.zeros((env.n_states, env.n_actions), dtype=float)
+    returns = []
+
+    for ep in range(episodes):
+        epsilon = epsilon_schedule(ep, eps_start, eps_end, decay_steps)
+        state = env.reset()
+        ep_return = 0.0
+        done = False
+        while not done:
+            Qsum = Q1 + Q2
+            action = select_action(Qsum, state, epsilon, rng)
+            step = env.step(action)
+            ep_return += step.reward
+
+            if rng.random() < 0.5:
+                next_a = int(np.argmax(Q1[step.state]))
+                td_target = step.reward + gamma * Q2[step.state, next_a]
+                Q1[state, action] += alpha * (td_target - Q1[state, action])
+            else:
+                next_a = int(np.argmax(Q2[step.state]))
+                td_target = step.reward + gamma * Q1[step.state, next_a]
+                Q2[state, action] += alpha * (td_target - Q2[state, action])
+
+            state = step.state
+            done = step.done
+        returns.append(float(ep_return))
+
+    Q = Q1 + Q2
+    policy = greedy_policy_from_Q(Q)
+    V = np.max(Q, axis=1)
+    return TrainResult(
+        policy=policy,
+        V={str(i): float(v) for i, v in enumerate(V)},
+        train_info={"episodes": float(episodes)},
+        episode_returns=returns,
+        Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
+    )

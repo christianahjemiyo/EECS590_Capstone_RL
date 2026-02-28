@@ -7,6 +7,8 @@ This folder contains the Version 2 upgrade artifacts for the capstone:
 
 ## Files
 - `V2/scripts/preprocess_mimic.py`
+- `V2/scripts/plot_v2_results.py`
+- `V2/scripts/write_v2_interpretation.py`
 - `V2/configs/data_env_mimic.json`
 - `V2/configs/mdp_sim_mimic.json`
 - `V2/docs/external_validation_plan.md` (planning note only, implementation on hold)
@@ -22,6 +24,11 @@ python scripts/build_mdp.py --config V2/configs/mdp_sim_mimic.json --outdir outp
 python -m eecs590_capstone.cli.mdp_train --algo policy_iter --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/mdp
 python -m eecs590_capstone.cli.mdp_train --algo value_iter --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/mdp
 python -m eecs590_capstone.cli.rl_train --algo q_learning --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/rl
+python -m eecs590_capstone.cli.rl_train --algo double_q_learning --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/rl_double_q
+python scripts/plot_mdp_results.py --outdir outputs/V2/mdp --algo policy_iter
+python scripts/plot_mdp_results.py --outdir outputs/V2/mdp --algo value_iter
+python V2/scripts/plot_v2_results.py
+python V2/scripts/write_v2_interpretation.py
 ```
 
 ## Why commit outputs/V2

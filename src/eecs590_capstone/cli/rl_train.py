@@ -14,6 +14,7 @@ from eecs590_capstone.agents.rl_tabular import (
     sarsa_n,
     sarsa_lambda,
     q_learning,
+    double_q_learning,
 )
 from eecs590_capstone.utils.io import save_json
 
@@ -27,7 +28,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Train tabular RL algorithms on the simulated MDP.")
     parser.add_argument("--mdp", type=str, default="outputs/mdp/mdp.npz")
     parser.add_argument("--algo", type=str, default="q_learning",
-                        choices=["mc", "td_n", "td_lambda", "sarsa_n", "sarsa_lambda", "q_learning"])
+                        choices=["mc", "td_n", "td_lambda", "sarsa_n", "sarsa_lambda", "q_learning", "double_q_learning"])
     parser.add_argument("--episodes", type=int, default=5000)
     parser.add_argument("--max-steps", type=int, default=30)
     parser.add_argument("--alpha", type=float, default=0.1)
@@ -65,9 +66,14 @@ def main() -> None:
                               lam=args.lam, eps_start=args.eps_start, eps_end=args.eps_end,
                               decay_steps=args.eps_decay, seed=args.seed)
     else:
-        result = q_learning(env, episodes=args.episodes, alpha=args.alpha,
-                            gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
-                            decay_steps=args.eps_decay, seed=args.seed)
+        if args.algo == "q_learning":
+            result = q_learning(env, episodes=args.episodes, alpha=args.alpha,
+                                gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                                decay_steps=args.eps_decay, seed=args.seed)
+        else:
+            result = double_q_learning(env, episodes=args.episodes, alpha=args.alpha,
+                                       gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                                       decay_steps=args.eps_decay, seed=args.seed)
 
     eval_metrics = rollout_policy(mdp, result.policy, episodes=2000, seed=args.seed)
 

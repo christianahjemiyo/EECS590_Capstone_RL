@@ -22,6 +22,7 @@ from eecs590_capstone.agents.rl_tabular import (
     sarsa_n,
     sarsa_lambda,
     q_learning,
+    double_q_learning,
 )
 from eecs590_capstone.utils.io import save_json
 
@@ -82,6 +83,9 @@ def main() -> None:
         "q_learning": lambda: q_learning(env, episodes=args.episodes, alpha=args.alpha,
                                           gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
                                           decay_steps=args.eps_decay, seed=args.seed),
+        "double_q_learning": lambda: double_q_learning(env, episodes=args.episodes, alpha=args.alpha,
+                                                        gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                                                        decay_steps=args.eps_decay, seed=args.seed),
     }
 
     for name, fn in configs.items():
@@ -110,10 +114,14 @@ def main() -> None:
                 result = sarsa_lambda(env, episodes=args.episodes, alpha=args.alpha,
                                       gamma=args.gamma, lam=args.lam, eps_start=args.eps_start,
                                       eps_end=args.eps_end, decay_steps=args.eps_decay, seed=run_seed)
-            else:
+            elif name == "q_learning":
                 result = q_learning(env, episodes=args.episodes, alpha=args.alpha,
                                     gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
                                     decay_steps=args.eps_decay, seed=run_seed)
+            else:
+                result = double_q_learning(env, episodes=args.episodes, alpha=args.alpha,
+                                           gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                                           decay_steps=args.eps_decay, seed=run_seed)
 
             eval_metrics = rollout_policy(mdp, result.policy, episodes=2000, seed=run_seed)
             out = Path(args.outdir) / name / f"run_{run}"
