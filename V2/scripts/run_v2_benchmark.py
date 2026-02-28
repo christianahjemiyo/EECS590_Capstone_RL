@@ -365,8 +365,12 @@ def main() -> None:
     lines.append("")
     lines.append("## 3) How to explain this to your instructor")
     lines.append("- In this reward design, less negative return is better.")
-    lines.append("- If the behavior/action-0 policy is strongest, it means intervention costs are currently dominating benefits.")
-    lines.append("- That is not a failure. It is a useful diagnostic showing where reward calibration is needed.")
+    if best_roll["algo"] == "Behavior_Action0":
+        lines.append("- The behavior/action-0 policy is strongest in this run, which means intervention costs are dominating benefits.")
+        lines.append("- That is still useful: it pinpoints reward calibration as the next step.")
+    else:
+        lines.append("- Learned policies are now outperforming the behavior/action-0 baseline.")
+        lines.append("- This is the result we want: interventions have enough modeled benefit to justify their cost.")
     lines.append("")
     lines.append("## 4) Why this is still standout work")
     lines.append("- You are not just reporting one score; you are showing uncertainty (seed variation + CI).")
