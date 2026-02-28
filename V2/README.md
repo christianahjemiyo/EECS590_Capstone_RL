@@ -9,6 +9,7 @@ This folder contains the Version 2 upgrade artifacts for the capstone:
 - `V2/scripts/preprocess_mimic.py`
 - `V2/scripts/plot_v2_results.py`
 - `V2/scripts/write_v2_interpretation.py`
+- `V2/scripts/offline_rl_benchmark.py`
 - `V2/configs/data_env_mimic.json`
 - `V2/configs/mdp_sim_mimic.json`
 - `V2/docs/external_validation_plan.md` (planning note only, implementation on hold)
@@ -29,6 +30,7 @@ python scripts/plot_mdp_results.py --outdir outputs/V2/mdp --algo policy_iter
 python scripts/plot_mdp_results.py --outdir outputs/V2/mdp --algo value_iter
 python V2/scripts/plot_v2_results.py
 python V2/scripts/write_v2_interpretation.py
+python V2/scripts/offline_rl_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/offline
 ```
 
 ## Why commit outputs/V2

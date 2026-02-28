@@ -1,0 +1,8 @@
+{
+  "transitions": 120000,
+  "episodes": 4000,
+  "max_steps": 30,
+  "behavior_eps": 0.35,
+  "state_count": 4,
+  "action_count": 3
+}
