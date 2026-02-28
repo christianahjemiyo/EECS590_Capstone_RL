@@ -19,13 +19,13 @@
 - `outputs/V2/figures/rl_learning_curve.png`: how quickly RL improves with more episodes.
 - `outputs/V2/figures/algo_avg_return_comparison.png`: side-by-side comparison of final performance.
 
-## 4) Talking points for your instructor
+## 4) Notes
 - DP methods are the benchmark here because they solve the known tabular MDP directly.
 - RL methods are useful because they scale to settings where transitions are not explicitly known.
 - Double Q-Learning is a stronger variant of Q-Learning because it reduces overestimation bias.
 - V2 is now fully reproducible: preprocessing, training, and figures are versioned with results.
 
-## 5) Honest limitation to mention
+## 5) Limitation
 - Current simulator uses proxy transitions derived from data, not causal treatment effects.
 - This is a strong engineering baseline, and a bridge toward offline RL with richer clinical actions.
 
