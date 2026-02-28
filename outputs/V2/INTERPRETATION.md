@@ -1,6 +1,6 @@
 # V2 Interpretation (Presentation Notes)
 
-## 1) What these results mean in plain words
+## 1) What these results mean 
 - We are testing how well each algorithm learns a policy that avoids costly readmission outcomes.
 - In this setup, higher return is better (less negative is better).
 - Because readmission penalties are large, negative returns are expected; the key is relative performance.
