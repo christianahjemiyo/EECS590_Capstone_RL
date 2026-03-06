@@ -6,6 +6,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from viz_theme import apply_v2_theme, annotate_bars, colors_for
+
 
 def load_json(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as f:
@@ -22,6 +24,7 @@ def smooth(y: np.ndarray, window: int = 100) -> np.ndarray:
 
 
 def plot_learning_curve(rl_series: dict[str, Path], outdir: Path) -> None:
+    apply_v2_theme()
     plt.figure(figsize=(7, 4))
     plotted = 0
     for name, rl_dir in rl_series.items():
@@ -34,7 +37,8 @@ def plot_learning_curve(rl_series: dict[str, Path], outdir: Path) -> None:
             continue
         sm = smooth(returns, window=100)
         xs = np.arange(len(sm))
-        plt.plot(xs, sm, label=f"{name} (smoothed)")
+        c = colors_for([name])[0]
+        plt.plot(xs, sm, label=f"{name} (smoothed)", linewidth=2.2, color=c)
         plotted += 1
 
     if plotted == 0:
@@ -42,14 +46,15 @@ def plot_learning_curve(rl_series: dict[str, Path], outdir: Path) -> None:
 
     plt.xlabel("Episode")
     plt.ylabel("Return")
-    plt.title("V2 RL Learning Curve")
-    plt.legend()
+    plt.title("V2 RL Learning Curves")
+    plt.legend(frameon=True)
     plt.tight_layout()
     plt.savefig(outdir / "rl_learning_curve.png", dpi=180)
     plt.close()
 
 
 def plot_algo_comparison(mdp_dir: Path, rl_series: dict[str, Path], outdir: Path) -> None:
+    apply_v2_theme()
     pi = load_json(mdp_dir / "policy_iter_eval.json")
     vi = load_json(mdp_dir / "value_iter_eval.json")
     labels = ["Policy Iter", "Value Iter"]
@@ -65,10 +70,12 @@ def plot_algo_comparison(mdp_dir: Path, rl_series: dict[str, Path], outdir: Path
         means.append(float(ev.get("avg_return", 0.0)))
         stds.append(float(ev.get("std_return", 0.0)))
 
-    plt.figure(figsize=(7, 4))
-    plt.bar(labels, means, yerr=stds, capsize=4)
+    plt.figure(figsize=(7.6, 4.4))
+    colors = colors_for(labels)
+    plt.bar(labels, means, yerr=stds, capsize=5, color=colors, alpha=0.92)
+    annotate_bars(plt.gca(), means, fmt="{:.1f}")
     plt.ylabel("Average Return")
-    plt.title("V2 Algorithm Comparison")
+    plt.title("V2 Algorithm Comparison (higher is better)")
     plt.tight_layout()
     plt.savefig(outdir / "algo_avg_return_comparison.png", dpi=180)
     plt.close()

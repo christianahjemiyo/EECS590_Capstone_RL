@@ -13,6 +13,7 @@ from eecs590_capstone.agents.dp_value_iter import value_iteration
 from eecs590_capstone.agents.rl_tabular import q_learning, double_q_learning
 from eecs590_capstone.envs.mdp_sim_env import MDPSimEnv
 from eecs590_capstone.mdp.definitions import TabularMDP, rollout_policy
+from viz_theme import apply_v2_theme, annotate_bars, colors_for
 
 
 def load_mdp(path: Path) -> TabularMDP:
@@ -320,18 +321,27 @@ def main() -> None:
     fqe_means = [r["fqe_mean"] for r in summary_rows]
     fqe_ci = [r["fqe_ci95"] for r in summary_rows]
 
+    apply_v2_theme()
     x = np.arange(len(labels))
-    plt.figure(figsize=(11, 5))
-    plt.bar(x, roll_means, yerr=roll_ci, capsize=4)
+    plt.figure(figsize=(11.3, 5.2))
+    plt.bar(x, roll_means, yerr=roll_ci, capsize=5, color=colors_for(labels), alpha=0.93)
+    annotate_bars(plt.gca(), roll_means, fmt="{:.2f}")
     plt.xticks(x, labels, rotation=25, ha="right")
     plt.ylabel("Avg Return")
     plt.title("V2 Benchmark: Rollout Performance (mean +/- 95% CI)")
+    if "Behavior_Action0" in labels:
+        b_idx = labels.index("Behavior_Action0")
+        b = roll_means[b_idx]
+        plt.axhline(b, linestyle="--", linewidth=1.3, color="#6c757d")
+        plt.text(len(labels) - 0.2, b, "Behavior baseline", ha="right", va="bottom", fontsize=8, color="#6c757d")
     plt.tight_layout()
     plt.savefig(figdir / "benchmark_rollout_comparison.png", dpi=180)
     plt.close()
 
-    plt.figure(figsize=(11, 5))
-    plt.bar(x, fqe_means, yerr=fqe_ci, capsize=4)
+    apply_v2_theme()
+    plt.figure(figsize=(11.3, 5.2))
+    plt.bar(x, fqe_means, yerr=fqe_ci, capsize=5, color=colors_for(labels), alpha=0.93)
+    annotate_bars(plt.gca(), fqe_means, fmt="{:.2f}")
     plt.xticks(x, labels, rotation=25, ha="right")
     plt.ylabel("FQE Value Estimate")
     plt.title("V2 Benchmark: Offline Evaluation (mean +/- 95% CI)")

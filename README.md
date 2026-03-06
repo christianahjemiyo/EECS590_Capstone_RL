@@ -144,6 +144,14 @@ Run everything end-to-end:
 python scripts/run_everything.py
 ```
 
+V2 (MIMIC + benchmark + saliency):
+```powershell
+python V2/scripts/run_v2_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/benchmark --seeds 5
+python V2/scripts/plot_v2_saliency.py --data data/processed/train.csv --outdir outputs/V2/figures
+python V2/scripts/run_v2_tabular_suite.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/tabular_suite --seeds 7,11,19,23,29
+```
+See the full V2 runbook in `V2/README.md`.
+
 Run unit tests:
 ```powershell
 python -m pytest -q

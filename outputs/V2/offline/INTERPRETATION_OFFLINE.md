@@ -10,8 +10,8 @@
 - If conservative Q does not win, that still shows honest benchmarking.
 
 ## Results
-- FQI avg return: -570.295 +/- 18.808
-- Conservative Q avg return: -571.626 +/- 19.184
+- FQI avg return: -212.328 +/- 20.843
+- Conservative Q avg return: -222.153 +/- 20.093
 
 ## Figures
 - `offline_training_curves.png`

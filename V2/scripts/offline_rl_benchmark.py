@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from eecs590_capstone.mdp.definitions import TabularMDP, rollout_policy
+from viz_theme import apply_v2_theme, annotate_bars, colors_for
 
 
 def load_mdp(path: Path) -> TabularMDP:
@@ -182,13 +183,15 @@ def main() -> None:
         {"fqi_mean_target": fqi_curve, "cql_mean_abs_td": cql_curve},
     )
 
-    plt.figure(figsize=(7, 4))
-    plt.plot(np.arange(len(fqi_curve)), fqi_curve, label="FQI (mean target)")
-    plt.plot(np.arange(len(cql_curve)), cql_curve, label="CQL (mean abs TD)")
+    apply_v2_theme()
+    plt.figure(figsize=(7.6, 4.3))
+    c1, c2 = colors_for(["Offline_IQL", "Offline_CQL"])
+    plt.plot(np.arange(len(fqi_curve)), fqi_curve, label="FQI (mean target)", linewidth=2.0, color=c1)
+    plt.plot(np.arange(len(cql_curve)), cql_curve, label="CQL (mean abs TD)", linewidth=2.0, color=c2)
     plt.xlabel("Iteration / Epoch")
     plt.ylabel("Training Signal")
     plt.title("Offline RL Training Curves (V2)")
-    plt.legend()
+    plt.legend(frameon=True)
     plt.tight_layout()
     plt.savefig(figdir / "offline_training_curves.png", dpi=180)
     plt.close()
@@ -196,10 +199,12 @@ def main() -> None:
     labels = ["FQI", "Conservative Q"]
     means = [float(ev_fqi["avg_return"]), float(ev_cql["avg_return"])]
     stds = [float(ev_fqi["std_return"]), float(ev_cql["std_return"])]
-    plt.figure(figsize=(6, 4))
-    plt.bar(labels, means, yerr=stds, capsize=4)
+    apply_v2_theme()
+    plt.figure(figsize=(6.4, 4.2))
+    plt.bar(labels, means, yerr=stds, capsize=5, color=colors_for(["Offline_IQL", "Offline_CQL"]), alpha=0.93)
+    annotate_bars(plt.gca(), means, fmt="{:.2f}")
     plt.ylabel("Average Return")
-    plt.title("Offline RL Policy Comparison (V2)")
+    plt.title("Offline RL Policy Comparison (V2, higher is better)")
     plt.tight_layout()
     plt.savefig(figdir / "offline_return_comparison.png", dpi=180)
     plt.close()
