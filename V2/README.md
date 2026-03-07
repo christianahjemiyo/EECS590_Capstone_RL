@@ -1,4 +1,4 @@
-# V2 Upgrade Pack (MIMIC-IV + Benchmarks + Saliency)
+# V2 (MIMIC-IV + Benchmarks + Saliency)
 
 This folder is the Version 2 capstone workflow:
 1. Build MIMIC-based readmission data
