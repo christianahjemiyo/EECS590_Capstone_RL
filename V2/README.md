@@ -15,6 +15,7 @@ This folder is the Version 2 capstone workflow:
 - `V2/scripts/offline_rl_benchmark.py`: offline RL comparison (FQI vs conservative variant).
 - `V2/scripts/run_v2_benchmark.py`: broad benchmark (DP, online RL, offline RL, CIs).
 - `V2/scripts/run_v2_tabular_suite.py`: class-family tabular suite (MC/TD/SARSA/Q variants).
+- `V2/scripts/train_dqn.py`: practical deep RL baseline (DQN) on current MDP.
 
 Config files:
 - `V2/configs/data_env_mimic.json`
@@ -55,6 +56,9 @@ python scripts/plot_mdp_results.py --outdir outputs/V2/mdp --algo value_iter
 # C. Train RL baselines
 python -m eecs590_capstone.cli.rl_train --algo q_learning --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/rl
 python -m eecs590_capstone.cli.rl_train --algo double_q_learning --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/rl_double_q
+python -m eecs590_capstone.cli.rl_train --algo td0 --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/rl_td0
+python -m eecs590_capstone.cli.rl_train --algo sarsa --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/rl_sarsa
+python V2/scripts/train_dqn.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/rl_dqn
 python V2/scripts/plot_v2_results.py
 python V2/scripts/write_v2_interpretation.py
 

@@ -23,6 +23,7 @@ def main() -> None:
     parser.add_argument("--skip-benchmark", action="store_true")
     parser.add_argument("--skip-offline", action="store_true")
     parser.add_argument("--skip-tabular-suite", action="store_true")
+    parser.add_argument("--skip-dqn", action="store_true")
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[2]
@@ -33,6 +34,19 @@ def main() -> None:
     out_root = Path(args.out_root)
     mdp = args.mdp
     data = args.data
+
+    if not args.skip_dqn:
+        dqn_cmd = [
+            py,
+            "V2/scripts/train_dqn.py",
+            "--mdp",
+            mdp,
+            "--outdir",
+            str(out_root / "rl_dqn"),
+        ]
+        if args.quick:
+            dqn_cmd += ["--episodes", "1200", "--warmup-steps", "150", "--target-update", "100"]
+        run_cmd(dqn_cmd, cwd=repo_root, env=env)
 
     run_cmd([py, "V2/scripts/plot_v2_results.py"], cwd=repo_root, env=env)
     run_cmd(
@@ -98,4 +112,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

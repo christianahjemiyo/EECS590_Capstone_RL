@@ -126,8 +126,10 @@ python scripts/render_mdp_html.py --policy outputs/mdp/policy_iter_policy.json
 Train tabular RL algorithms on the simulated MDP:
 ```powershell
 python -m eecs590_capstone.cli.rl_train --algo mc
+python -m eecs590_capstone.cli.rl_train --algo td0
 python -m eecs590_capstone.cli.rl_train --algo td_n --n 3
 python -m eecs590_capstone.cli.rl_train --algo td_lambda --lambda 0.8
+python -m eecs590_capstone.cli.rl_train --algo sarsa
 python -m eecs590_capstone.cli.rl_train --algo sarsa_n --n 3
 python -m eecs590_capstone.cli.rl_train --algo sarsa_lambda --lambda 0.8
 python -m eecs590_capstone.cli.rl_train --algo q_learning

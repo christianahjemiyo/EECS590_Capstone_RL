@@ -9,8 +9,10 @@ from eecs590_capstone.envs.mdp_sim_env import MDPSimEnv
 from eecs590_capstone.mdp.definitions import TabularMDP, rollout_policy
 from eecs590_capstone.agents.rl_tabular import (
     mc_control,
+    td0,
     td_n,
     td_lambda,
+    sarsa,
     sarsa_n,
     sarsa_lambda,
     q_learning,
@@ -28,7 +30,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Train tabular RL algorithms on the simulated MDP.")
     parser.add_argument("--mdp", type=str, default="outputs/mdp/mdp.npz")
     parser.add_argument("--algo", type=str, default="q_learning",
-                        choices=["mc", "td_n", "td_lambda", "sarsa_n", "sarsa_lambda", "q_learning", "double_q_learning"])
+                        choices=["mc", "td0", "td_n", "td_lambda", "sarsa", "sarsa_n", "sarsa_lambda", "q_learning", "double_q_learning"])
     parser.add_argument("--episodes", type=int, default=5000)
     parser.add_argument("--max-steps", type=int, default=30)
     parser.add_argument("--alpha", type=float, default=0.1)
@@ -49,6 +51,10 @@ def main() -> None:
         result = mc_control(env, episodes=args.episodes, gamma=args.gamma,
                             eps_start=args.eps_start, eps_end=args.eps_end,
                             decay_steps=args.eps_decay, seed=args.seed)
+    elif args.algo == "td0":
+        result = td0(env, mdp, episodes=args.episodes, alpha=args.alpha,
+                     gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                     decay_steps=args.eps_decay, seed=args.seed)
     elif args.algo == "td_n":
         result = td_n(env, mdp, episodes=args.episodes, n=args.n, alpha=args.alpha,
                       gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
@@ -61,6 +67,10 @@ def main() -> None:
         result = sarsa_n(env, episodes=args.episodes, n=args.n, alpha=args.alpha,
                          gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
                          decay_steps=args.eps_decay, seed=args.seed)
+    elif args.algo == "sarsa":
+        result = sarsa(env, episodes=args.episodes, alpha=args.alpha, gamma=args.gamma,
+                       eps_start=args.eps_start, eps_end=args.eps_end,
+                       decay_steps=args.eps_decay, seed=args.seed)
     elif args.algo == "sarsa_lambda":
         result = sarsa_lambda(env, episodes=args.episodes, alpha=args.alpha, gamma=args.gamma,
                               lam=args.lam, eps_start=args.eps_start, eps_end=args.eps_end,

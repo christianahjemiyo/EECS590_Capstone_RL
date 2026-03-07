@@ -10,8 +10,11 @@
 | --- | ---: | ---: |
 | Policy Iteration (DP) | -211.763 | 16.372 |
 | Value Iteration (DP) | -211.763 | 16.372 |
+| TD(0) | -211.763 | 16.372 |
+| SARSA | -225.879 | 16.021 |
 | Q-Learning | -220.955 | 15.943 |
 | Double Q-Learning | -231.408 | 16.515 |
+| DQN | -227.250 | 14.982 |
 
 ## 3) How to read the figures
 - `outputs/V2/mdp/*_value_bar.png`: how valuable each risk-state is under the learned plan.

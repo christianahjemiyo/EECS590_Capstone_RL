@@ -1,0 +1,17 @@
+{
+  "mdp": "outputs/V2/mdp/mdp.npz",
+  "outdir": "outputs/V2/rl_dqn",
+  "episodes": 4000,
+  "max_steps": 30,
+  "gamma": 0.99,
+  "lr": 0.001,
+  "hidden": 32,
+  "batch_size": 64,
+  "replay_size": 20000,
+  "warmup_steps": 300,
+  "target_update": 200,
+  "eps_start": 1.0,
+  "eps_end": 0.05,
+  "eps_decay": 3000,
+  "seed": 7
+}

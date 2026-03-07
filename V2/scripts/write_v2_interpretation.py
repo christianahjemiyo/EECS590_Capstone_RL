@@ -21,8 +21,11 @@ def main() -> None:
 
     pi = maybe_eval(Path("outputs/V2/mdp/policy_iter_eval.json"))
     vi = maybe_eval(Path("outputs/V2/mdp/value_iter_eval.json"))
+    td0 = maybe_eval(Path("outputs/V2/rl_td0/eval_results.json"))
+    sarsa = maybe_eval(Path("outputs/V2/rl_sarsa/eval_results.json"))
     ql = maybe_eval(Path("outputs/V2/rl/eval_results.json"))
     dql = maybe_eval(Path("outputs/V2/rl_double_q/eval_results.json"))
+    dqn = maybe_eval(Path("outputs/V2/rl_dqn/eval_results.json"))
 
     lines = []
     lines.append("# V2 Interpretation (Presentation Notes)")
@@ -43,8 +46,11 @@ def main() -> None:
 
     lines.append(row("Policy Iteration (DP)", pi))
     lines.append(row("Value Iteration (DP)", vi))
+    lines.append(row("TD(0)", td0))
+    lines.append(row("SARSA", sarsa))
     lines.append(row("Q-Learning", ql))
     lines.append(row("Double Q-Learning", dql))
+    lines.append(row("DQN", dqn))
     lines.append("")
     lines.append("## 3) How to read the figures")
     lines.append("- `outputs/V2/mdp/*_value_bar.png`: how valuable each risk-state is under the learned plan.")

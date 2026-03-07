@@ -85,8 +85,11 @@ def main() -> None:
     outdir = Path("outputs/V2/figures")
     mdp_dir = Path("outputs/V2/mdp")
     rl_series = {
+        "TD(0)": Path("outputs/V2/rl_td0"),
+        "SARSA": Path("outputs/V2/rl_sarsa"),
         "Q-Learning": Path("outputs/V2/rl"),
         "Double Q-Learning": Path("outputs/V2/rl_double_q"),
+        "DQN": Path("outputs/V2/rl_dqn"),
     }
     outdir.mkdir(parents=True, exist_ok=True)
 

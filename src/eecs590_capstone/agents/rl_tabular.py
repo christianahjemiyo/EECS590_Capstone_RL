@@ -139,6 +139,50 @@ def td_n(env, mdp: TabularMDP, episodes: int, n: int, alpha: float, gamma: float
     )
 
 
+def td0(
+    env,
+    mdp: TabularMDP,
+    episodes: int,
+    alpha: float,
+    gamma: float,
+    eps_start: float,
+    eps_end: float,
+    decay_steps: int,
+    seed: int,
+) -> TrainResult:
+    rng = np.random.default_rng(seed)
+    V = np.zeros(env.n_states, dtype=float)
+    returns = []
+
+    for ep in range(episodes):
+        epsilon = epsilon_schedule(ep, eps_start, eps_end, decay_steps)
+        state = env.reset()
+        ep_return = 0.0
+        done = False
+        while not done:
+            greedy_policy = greedy_policy_from_V(mdp, V, gamma)
+            a_greedy = greedy_policy[str(state)]
+            if rng.random() < epsilon:
+                action = int(rng.integers(0, env.n_actions))
+            else:
+                action = int(a_greedy)
+            step = env.step(action)
+            ep_return += step.reward
+            td_error = step.reward + gamma * V[step.state] - V[state]
+            V[state] += alpha * td_error
+            state = step.state
+            done = step.done
+        returns.append(float(ep_return))
+
+    policy = greedy_policy_from_V(mdp, V, gamma)
+    return TrainResult(
+        policy=policy,
+        V={str(i): float(v) for i, v in enumerate(V)},
+        train_info={"episodes": float(episodes)},
+        episode_returns=returns,
+    )
+
+
 def td_lambda(env, mdp: TabularMDP, episodes: int, alpha: float, gamma: float, lam: float, eps_start: float, eps_end: float, decay_steps: int, seed: int) -> TrainResult:
     rng = np.random.default_rng(seed)
     V = np.zeros(env.n_states, dtype=float)
@@ -255,6 +299,48 @@ def sarsa_lambda(env, episodes: int, alpha: float, gamma: float, lam: float, eps
         policy=policy,
         V={str(i): float(v) for i, v in enumerate(V)},
         train_info={"episodes": float(episodes), "lambda": float(lam)},
+        episode_returns=returns,
+        Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
+    )
+
+
+def sarsa(
+    env,
+    episodes: int,
+    alpha: float,
+    gamma: float,
+    eps_start: float,
+    eps_end: float,
+    decay_steps: int,
+    seed: int,
+) -> TrainResult:
+    rng = np.random.default_rng(seed)
+    Q = np.zeros((env.n_states, env.n_actions), dtype=float)
+    returns = []
+
+    for ep in range(episodes):
+        epsilon = epsilon_schedule(ep, eps_start, eps_end, decay_steps)
+        state = env.reset()
+        action = select_action(Q, state, epsilon, rng)
+        ep_return = 0.0
+        done = False
+        while not done:
+            step = env.step(action)
+            next_action = select_action(Q, step.state, epsilon, rng) if not step.done else 0
+            ep_return += step.reward
+            td_error = step.reward + gamma * Q[step.state, next_action] - Q[state, action]
+            Q[state, action] += alpha * td_error
+            state = step.state
+            action = next_action
+            done = step.done
+        returns.append(float(ep_return))
+
+    policy = greedy_policy_from_Q(Q)
+    V = np.max(Q, axis=1)
+    return TrainResult(
+        policy=policy,
+        V={str(i): float(v) for i, v in enumerate(V)},
+        train_info={"episodes": float(episodes)},
         episode_returns=returns,
         Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
     )

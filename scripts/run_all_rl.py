@@ -17,8 +17,10 @@ from eecs590_capstone.envs.mdp_sim_env import MDPSimEnv
 from eecs590_capstone.mdp.definitions import TabularMDP, rollout_policy
 from eecs590_capstone.agents.rl_tabular import (
     mc_control,
+    td0,
     td_n,
     td_lambda,
+    sarsa,
     sarsa_n,
     sarsa_lambda,
     q_learning,
@@ -68,6 +70,9 @@ def main() -> None:
         "mc": lambda: mc_control(env, episodes=args.episodes, gamma=args.gamma,
                                  eps_start=args.eps_start, eps_end=args.eps_end,
                                  decay_steps=args.eps_decay, seed=args.seed),
+        "td0": lambda: td0(env, mdp, episodes=args.episodes, alpha=args.alpha,
+                           gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                           decay_steps=args.eps_decay, seed=args.seed),
         "td_n": lambda: td_n(env, mdp, episodes=args.episodes, n=args.n, alpha=args.alpha,
                              gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
                              decay_steps=args.eps_decay, seed=args.seed),
@@ -77,6 +82,9 @@ def main() -> None:
         "sarsa_n": lambda: sarsa_n(env, episodes=args.episodes, n=args.n, alpha=args.alpha,
                                    gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
                                    decay_steps=args.eps_decay, seed=args.seed),
+        "sarsa": lambda: sarsa(env, episodes=args.episodes, alpha=args.alpha,
+                               gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                               decay_steps=args.eps_decay, seed=args.seed),
         "sarsa_lambda": lambda: sarsa_lambda(env, episodes=args.episodes, alpha=args.alpha,
                                              gamma=args.gamma, lam=args.lam, eps_start=args.eps_start,
                                              eps_end=args.eps_end, decay_steps=args.eps_decay, seed=args.seed),
@@ -98,6 +106,10 @@ def main() -> None:
                 result = mc_control(env, episodes=args.episodes, gamma=args.gamma,
                                     eps_start=args.eps_start, eps_end=args.eps_end,
                                     decay_steps=args.eps_decay, seed=run_seed)
+            elif name == "td0":
+                result = td0(env, mdp, episodes=args.episodes, alpha=args.alpha,
+                             gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                             decay_steps=args.eps_decay, seed=run_seed)
             elif name == "td_n":
                 result = td_n(env, mdp, episodes=args.episodes, n=args.n, alpha=args.alpha,
                               gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
@@ -110,6 +122,10 @@ def main() -> None:
                 result = sarsa_n(env, episodes=args.episodes, n=args.n, alpha=args.alpha,
                                  gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
                                  decay_steps=args.eps_decay, seed=run_seed)
+            elif name == "sarsa":
+                result = sarsa(env, episodes=args.episodes, alpha=args.alpha,
+                               gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                               decay_steps=args.eps_decay, seed=run_seed)
             elif name == "sarsa_lambda":
                 result = sarsa_lambda(env, episodes=args.episodes, alpha=args.alpha,
                                       gamma=args.gamma, lam=args.lam, eps_start=args.eps_start,
