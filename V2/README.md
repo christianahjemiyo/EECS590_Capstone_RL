@@ -1,6 +1,6 @@
 # V2 Upgrade Pack (MIMIC-IV + Benchmarks + Saliency)
 
-This folder is your Version 2 capstone workflow:
+This folder is the Version 2 capstone workflow:
 1. Build MIMIC-based readmission data
 2. Build tabular MDP
 3. Train/evaluate DP and RL algorithms
@@ -86,7 +86,7 @@ Class algorithm suite:
 - `outputs/V2/tabular_suite/figures/tabular_rollout_comparison.png`
 - `outputs/V2/tabular_suite/figures/tabular_learning_curves.png`
 
-## 4) How to Explain Results in Class
+## 4) Explanation
 - Higher return (less negative) is better in this reward design.
 - DP is the tabular upper benchmark when transitions are known.
 - RL methods matter because they scale when true dynamics are unknown.
