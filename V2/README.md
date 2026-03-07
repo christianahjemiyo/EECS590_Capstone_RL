@@ -41,7 +41,7 @@ python V2/scripts/make_all_v2_figures.py --mdp outputs/V2/mdp/mdp.npz --data dat
 ```powershell
 $env:PYTHONPATH="src"
 
-# A. Data preparation
+# A. Data preparation (includes direct counts from diagnoses/procedures/prescriptions/labevents)
 python V2/scripts/preprocess_mimic.py --mimic-zip "C:\Users\Christianah\OneDrive - North Dakota University System\Grad_applications\PhysioNet_Data\mimic-iv-3.1.zip"
 python scripts/data_profile.py --data data/processed/mimic_data_clean.csv --out outputs/V2/data_profile_mimic.md
 
@@ -67,6 +67,11 @@ python V2/scripts/run_v2_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir outp
 
 # F. Class algorithm coverage: MC/TD/SARSA/Q suite
 python V2/scripts/run_v2_tabular_suite.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/tabular_suite --seeds 7,11,19,23,29
+```
+
+If you want a faster preprocessing pass (without direct clinical counts), add:
+```powershell
+python V2/scripts/preprocess_mimic.py --mimic-zip "<path-to-zip>" --skip-direct-counts
 ```
 
 ## 3) Most Important Outputs to Show
