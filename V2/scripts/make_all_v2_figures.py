@@ -23,6 +23,10 @@ def main() -> None:
     parser.add_argument("--skip-benchmark", action="store_true")
     parser.add_argument("--skip-offline", action="store_true")
     parser.add_argument("--skip-tabular-suite", action="store_true")
+    parser.add_argument("--skip-approx-suite", action="store_true")
+    parser.add_argument("--skip-deep-suite", action="store_true")
+    parser.add_argument("--skip-advanced-suite", action="store_true")
+    parser.add_argument("--skip-all-algorithms", action="store_true")
     parser.add_argument("--skip-dqn", action="store_true")
     args = parser.parse_args()
 
@@ -49,6 +53,7 @@ def main() -> None:
         run_cmd(dqn_cmd, cwd=repo_root, env=env)
 
     run_cmd([py, "V2/scripts/plot_v2_results.py"], cwd=repo_root, env=env)
+    run_cmd([py, "V2/scripts/write_v2_interpretation.py"], cwd=repo_root, env=env)
     run_cmd(
         [
             py,
@@ -105,6 +110,58 @@ def main() -> None:
         if args.quick:
             suite_cmd += ["--episodes", "1000", "--eval-episodes", "1000"]
         run_cmd(suite_cmd, cwd=repo_root, env=env)
+
+    if not args.skip_approx_suite:
+        approx_cmd = [
+            py,
+            "V2/scripts/run_v2_approx_suite.py",
+            "--mdp",
+            mdp,
+            "--outdir",
+            str(out_root / "approx_suite"),
+        ]
+        if args.quick:
+            approx_cmd += ["--episodes", "1000", "--eval-episodes", "1000", "--seeds", "7,11"]
+        run_cmd(approx_cmd, cwd=repo_root, env=env)
+
+    if not args.skip_deep_suite:
+        deep_cmd = [
+            py,
+            "V2/scripts/run_v2_deep_suite.py",
+            "--mdp",
+            mdp,
+            "--outdir",
+            str(out_root / "deep_suite"),
+        ]
+        if args.quick:
+            deep_cmd += ["--episodes", "800", "--eval-episodes", "1000", "--seeds", "7,11"]
+        run_cmd(deep_cmd, cwd=repo_root, env=env)
+
+    if not args.skip_advanced_suite:
+        advanced_cmd = [
+            py,
+            "V2/scripts/run_v2_advanced_suite.py",
+            "--mdp",
+            mdp,
+            "--outdir",
+            str(out_root / "advanced_suite"),
+        ]
+        if args.quick:
+            advanced_cmd += ["--episodes", "800", "--eval-episodes", "1000", "--seeds", "7,11"]
+        run_cmd(advanced_cmd, cwd=repo_root, env=env)
+
+    if not args.skip_all_algorithms:
+        all_cmd = [
+            py,
+            "V2/scripts/run_v2_all_algorithms.py",
+            "--mdp",
+            mdp,
+            "--outdir",
+            str(out_root / "all_algorithms"),
+        ]
+        if args.quick:
+            all_cmd += ["--episodes", "600", "--eval-episodes", "1000", "--seeds", "7,11"]
+        run_cmd(all_cmd, cwd=repo_root, env=env)
 
     print("\nAll requested V2 figures and interpretation files are generated.")
     print(f"See: {(repo_root / out_root).resolve()}")

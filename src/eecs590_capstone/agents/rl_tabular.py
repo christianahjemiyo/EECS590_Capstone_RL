@@ -346,6 +346,53 @@ def sarsa(
     )
 
 
+def expected_sarsa(
+    env,
+    episodes: int,
+    alpha: float,
+    gamma: float,
+    eps_start: float,
+    eps_end: float,
+    decay_steps: int,
+    seed: int,
+) -> TrainResult:
+    rng = np.random.default_rng(seed)
+    Q = np.zeros((env.n_states, env.n_actions), dtype=float)
+    returns = []
+
+    for ep in range(episodes):
+        epsilon = epsilon_schedule(ep, eps_start, eps_end, decay_steps)
+        state = env.reset()
+        ep_return = 0.0
+        done = False
+        while not done:
+            action = select_action(Q, state, epsilon, rng)
+            step = env.step(action)
+            ep_return += step.reward
+
+            next_q = Q[step.state]
+            greedy_actions = np.flatnonzero(next_q == np.max(next_q))
+            probs = np.full(env.n_actions, epsilon / float(env.n_actions), dtype=float)
+            probs[greedy_actions] += (1.0 - epsilon) / float(len(greedy_actions))
+            expected_next = float(np.dot(probs, next_q))
+            td_error = step.reward + gamma * expected_next - Q[state, action]
+            Q[state, action] += alpha * td_error
+
+            state = step.state
+            done = step.done
+        returns.append(float(ep_return))
+
+    policy = greedy_policy_from_Q(Q)
+    V = np.max(Q, axis=1)
+    return TrainResult(
+        policy=policy,
+        V={str(i): float(v) for i, v in enumerate(V)},
+        train_info={"episodes": float(episodes)},
+        episode_returns=returns,
+        Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
+    )
+
+
 def q_learning(env, episodes: int, alpha: float, gamma: float, eps_start: float, eps_end: float, decay_steps: int, seed: int) -> TrainResult:
     rng = np.random.default_rng(seed)
     Q = np.zeros((env.n_states, env.n_actions), dtype=float)
@@ -372,6 +419,62 @@ def q_learning(env, episodes: int, alpha: float, gamma: float, eps_start: float,
         policy=policy,
         V={str(i): float(v) for i, v in enumerate(V)},
         train_info={"episodes": float(episodes)},
+        episode_returns=returns,
+        Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
+    )
+
+
+def q_lambda(
+    env,
+    episodes: int,
+    alpha: float,
+    gamma: float,
+    lam: float,
+    eps_start: float,
+    eps_end: float,
+    decay_steps: int,
+    seed: int,
+) -> TrainResult:
+    rng = np.random.default_rng(seed)
+    Q = np.zeros((env.n_states, env.n_actions), dtype=float)
+    returns = []
+
+    for ep in range(episodes):
+        epsilon = epsilon_schedule(ep, eps_start, eps_end, decay_steps)
+        E = np.zeros_like(Q)
+        state = env.reset()
+        ep_return = 0.0
+        done = False
+
+        while not done:
+            action = select_action(Q, state, epsilon, rng)
+            step = env.step(action)
+            ep_return += step.reward
+
+            next_best = float(np.max(Q[step.state]))
+            td_error = step.reward + gamma * next_best - Q[state, action]
+            E[state, action] += 1.0
+            Q += alpha * td_error * E
+
+            greedy_next = int(np.argmax(Q[step.state]))
+            next_action = select_action(Q, step.state, epsilon, rng) if not step.done else 0
+            if step.done:
+                E.fill(0.0)
+            elif next_action == greedy_next:
+                E *= gamma * lam
+            else:
+                E.fill(0.0)
+
+            state = step.state
+            done = step.done
+        returns.append(float(ep_return))
+
+    policy = greedy_policy_from_Q(Q)
+    V = np.max(Q, axis=1)
+    return TrainResult(
+        policy=policy,
+        V={str(i): float(v) for i, v in enumerate(V)},
+        train_info={"episodes": float(episodes), "lambda": float(lam)},
         episode_returns=returns,
         Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
     )
@@ -423,6 +526,61 @@ def double_q_learning(
         policy=policy,
         V={str(i): float(v) for i, v in enumerate(V)},
         train_info={"episodes": float(episodes)},
+        episode_returns=returns,
+        Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
+    )
+
+
+def dyna_q(
+    env,
+    episodes: int,
+    alpha: float,
+    gamma: float,
+    planning_steps: int,
+    eps_start: float,
+    eps_end: float,
+    decay_steps: int,
+    seed: int,
+) -> TrainResult:
+    rng = np.random.default_rng(seed)
+    Q = np.zeros((env.n_states, env.n_actions), dtype=float)
+    model: Dict[Tuple[int, int], Tuple[float, int, bool]] = {}
+    returns = []
+
+    for ep in range(episodes):
+        epsilon = epsilon_schedule(ep, eps_start, eps_end, decay_steps)
+        state = env.reset()
+        ep_return = 0.0
+        done = False
+
+        while not done:
+            action = select_action(Q, state, epsilon, rng)
+            step = env.step(action)
+            ep_return += step.reward
+
+            td_target = step.reward + gamma * np.max(Q[step.state]) * float(not step.done)
+            Q[state, action] += alpha * (td_target - Q[state, action])
+            model[(state, action)] = (float(step.reward), int(step.state), bool(step.done))
+
+            if model:
+                keys = list(model.keys())
+                for _ in range(planning_steps):
+                    ks, ka = keys[int(rng.integers(0, len(keys)))]
+                    mr, msn, mdone = model[(ks, ka)]
+                    mtarget = mr + gamma * np.max(Q[msn]) * float(not mdone)
+                    Q[ks, ka] += alpha * (mtarget - Q[ks, ka])
+
+            state = step.state
+            done = step.done
+
+        returns.append(float(ep_return))
+
+    policy = greedy_policy_from_Q(Q)
+    V = np.max(Q, axis=1)
+    return TrainResult(
+        policy=policy,
+        V={str(i): float(v) for i, v in enumerate(V)},
+        train_info={"episodes": float(episodes), "planning_steps": float(planning_steps)},
         episode_returns=returns,
         Q={str(i): Q[i].tolist() for i in range(Q.shape[0])},
     )

@@ -118,8 +118,8 @@ def _feature_weighted_lifts(df: pd.DataFrame, label_col: str) -> pd.DataFrame:
         tmp = pd.DataFrame({"g": groups, "y": y})
         grp = tmp.groupby("g", dropna=False)
         counts = grp.size()
-        lt30 = grp.apply(lambda g: float((g["y"] == "<30").mean()))
-        no = grp.apply(lambda g: float((g["y"] == "NO").mean()))
+        lt30 = grp["y"].apply(lambda y_col: float((y_col == "<30").mean()))
+        no = grp["y"].apply(lambda y_col: float((y_col == "NO").mean()))
 
         w = counts / n
         risk_lift = float(np.maximum(lt30 - p_lt30, 0.0).mul(w).sum())

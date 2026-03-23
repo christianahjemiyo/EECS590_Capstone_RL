@@ -8,7 +8,10 @@ import numpy as np
 from eecs590_capstone.envs.mdp_sim_env import MDPSimEnv
 from eecs590_capstone.mdp.definitions import TabularMDP, rollout_policy
 from eecs590_capstone.agents.rl_tabular import (
+    dyna_q,
+    expected_sarsa,
     mc_control,
+    q_lambda,
     td0,
     td_n,
     td_lambda,
@@ -28,20 +31,21 @@ def load_mdp(mdp_path: Path) -> TabularMDP:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train tabular RL algorithms on the simulated MDP.")
-    parser.add_argument("--mdp", type=str, default="outputs/mdp/mdp.npz")
+    parser.add_argument("--mdp", type=str, default="outputs/V2/mdp/mdp.npz")
     parser.add_argument("--algo", type=str, default="q_learning",
-                        choices=["mc", "td0", "td_n", "td_lambda", "sarsa", "sarsa_n", "sarsa_lambda", "q_learning", "double_q_learning"])
+                        choices=["mc", "td0", "td_n", "td_lambda", "sarsa", "sarsa_n", "sarsa_lambda", "expected_sarsa", "q_learning", "q_lambda", "double_q_learning", "dyna_q"])
     parser.add_argument("--episodes", type=int, default=5000)
     parser.add_argument("--max-steps", type=int, default=30)
     parser.add_argument("--alpha", type=float, default=0.1)
     parser.add_argument("--gamma", type=float, default=0.99)
     parser.add_argument("--n", type=int, default=3)
     parser.add_argument("--lambda", dest="lam", type=float, default=0.8)
+    parser.add_argument("--planning-steps", type=int, default=10)
     parser.add_argument("--eps-start", type=float, default=1.0)
     parser.add_argument("--eps-end", type=float, default=0.05)
     parser.add_argument("--eps-decay", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--outdir", type=str, default="outputs/rl")
+    parser.add_argument("--outdir", type=str, default="outputs/V2/rl")
     args = parser.parse_args()
 
     env = MDPSimEnv(mdp_path=args.mdp, seed=args.seed, max_steps=args.max_steps)
@@ -71,19 +75,30 @@ def main() -> None:
         result = sarsa(env, episodes=args.episodes, alpha=args.alpha, gamma=args.gamma,
                        eps_start=args.eps_start, eps_end=args.eps_end,
                        decay_steps=args.eps_decay, seed=args.seed)
+    elif args.algo == "expected_sarsa":
+        result = expected_sarsa(env, episodes=args.episodes, alpha=args.alpha, gamma=args.gamma,
+                                eps_start=args.eps_start, eps_end=args.eps_end,
+                                decay_steps=args.eps_decay, seed=args.seed)
     elif args.algo == "sarsa_lambda":
         result = sarsa_lambda(env, episodes=args.episodes, alpha=args.alpha, gamma=args.gamma,
                               lam=args.lam, eps_start=args.eps_start, eps_end=args.eps_end,
                               decay_steps=args.eps_decay, seed=args.seed)
+    elif args.algo == "q_learning":
+        result = q_learning(env, episodes=args.episodes, alpha=args.alpha,
+                            gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                            decay_steps=args.eps_decay, seed=args.seed)
+    elif args.algo == "q_lambda":
+        result = q_lambda(env, episodes=args.episodes, alpha=args.alpha, gamma=args.gamma,
+                          lam=args.lam, eps_start=args.eps_start, eps_end=args.eps_end,
+                          decay_steps=args.eps_decay, seed=args.seed)
+    elif args.algo == "double_q_learning":
+        result = double_q_learning(env, episodes=args.episodes, alpha=args.alpha,
+                                   gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
+                                   decay_steps=args.eps_decay, seed=args.seed)
     else:
-        if args.algo == "q_learning":
-            result = q_learning(env, episodes=args.episodes, alpha=args.alpha,
-                                gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
-                                decay_steps=args.eps_decay, seed=args.seed)
-        else:
-            result = double_q_learning(env, episodes=args.episodes, alpha=args.alpha,
-                                       gamma=args.gamma, eps_start=args.eps_start, eps_end=args.eps_end,
-                                       decay_steps=args.eps_decay, seed=args.seed)
+        result = dyna_q(env, episodes=args.episodes, alpha=args.alpha, gamma=args.gamma,
+                        planning_steps=args.planning_steps, eps_start=args.eps_start,
+                        eps_end=args.eps_end, decay_steps=args.eps_decay, seed=args.seed)
 
     eval_metrics = rollout_policy(mdp, result.policy, episodes=2000, seed=args.seed)
 

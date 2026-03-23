@@ -9,8 +9,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from eecs590_capstone.agents.rl_tabular import (
+    dyna_q,
+    expected_sarsa,
     double_q_learning,
     mc_control,
+    q_lambda,
     q_learning,
     sarsa,
     sarsa_lambda,
@@ -113,6 +116,17 @@ def run_algo(algo: str, env: MDPSimEnv, mdp: TabularMDP, args: argparse.Namespac
             decay_steps=args.eps_decay,
             seed=seed,
         )
+    if algo == "expected_sarsa":
+        return expected_sarsa(
+            env,
+            episodes=args.episodes,
+            alpha=args.alpha,
+            gamma=args.gamma,
+            eps_start=args.eps_start,
+            eps_end=args.eps_end,
+            decay_steps=args.eps_decay,
+            seed=seed,
+        )
     if algo == "sarsa_lambda":
         return sarsa_lambda(
             env,
@@ -136,12 +150,36 @@ def run_algo(algo: str, env: MDPSimEnv, mdp: TabularMDP, args: argparse.Namespac
             decay_steps=args.eps_decay,
             seed=seed,
         )
+    if algo == "q_lambda":
+        return q_lambda(
+            env,
+            episodes=args.episodes,
+            alpha=args.alpha,
+            gamma=args.gamma,
+            lam=args.lam,
+            eps_start=args.eps_start,
+            eps_end=args.eps_end,
+            decay_steps=args.eps_decay,
+            seed=seed,
+        )
     if algo == "double_q_learning":
         return double_q_learning(
             env,
             episodes=args.episodes,
             alpha=args.alpha,
             gamma=args.gamma,
+            eps_start=args.eps_start,
+            eps_end=args.eps_end,
+            decay_steps=args.eps_decay,
+            seed=seed,
+        )
+    if algo == "dyna_q":
+        return dyna_q(
+            env,
+            episodes=args.episodes,
+            alpha=args.alpha,
+            gamma=args.gamma,
+            planning_steps=args.planning_steps,
             eps_start=args.eps_start,
             eps_end=args.eps_end,
             decay_steps=args.eps_decay,
@@ -169,13 +207,27 @@ def main() -> None:
     parser.add_argument("--gamma", type=float, default=0.99)
     parser.add_argument("--n", type=int, default=3)
     parser.add_argument("--lambda", dest="lam", type=float, default=0.8)
+    parser.add_argument("--planning-steps", type=int, default=10)
     parser.add_argument("--eps-start", type=float, default=1.0)
     parser.add_argument("--eps-end", type=float, default=0.05)
     parser.add_argument("--eps-decay", type=int, default=2000)
     parser.add_argument("--seeds", type=str, default="7,11,19,23,29")
     args = parser.parse_args()
 
-    algos = ["mc", "td0", "td_n", "td_lambda", "sarsa", "sarsa_n", "sarsa_lambda", "q_learning", "double_q_learning"]
+    algos = [
+        "mc",
+        "td0",
+        "td_n",
+        "td_lambda",
+        "sarsa",
+        "sarsa_n",
+        "sarsa_lambda",
+        "expected_sarsa",
+        "q_learning",
+        "q_lambda",
+        "double_q_learning",
+        "dyna_q",
+    ]
     seeds = parse_seeds(args.seeds)
     outdir = Path(args.outdir)
     figdir = outdir / "figures"

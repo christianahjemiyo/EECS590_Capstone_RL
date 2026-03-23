@@ -1,0 +1,9 @@
+{
+  "mdp": "outputs/V2/mdp/mdp.npz",
+  "outdir": "outputs\\V2\\all_algorithms",
+  "episodes": 1500,
+  "eval_episodes": 2000,
+  "max_steps": 30,
+  "gamma": 0.99,
+  "seeds": "7,11,19"
+}

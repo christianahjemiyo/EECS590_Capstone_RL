@@ -6,7 +6,7 @@
 - Produces learning-curve and final-performance figures for class-algorithm coverage.
 
 ## Key result
-- Best mean rollout return: **td_lambda** (-30.163).
+- Best mean rollout return: **td0** (-30.163).
 
 ## Files
 - `summary_metrics.csv`

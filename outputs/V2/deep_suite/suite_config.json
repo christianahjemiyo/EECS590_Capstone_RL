@@ -1,7 +1,8 @@
 {
   "mdp": "outputs/V2/mdp/mdp.npz",
-  "outdir": "outputs\\V2\\rl_dqn",
-  "episodes": 4000,
+  "outdir": "outputs\\V2\\deep_suite",
+  "episodes": 2500,
+  "eval_episodes": 2000,
   "max_steps": 30,
   "gamma": 0.99,
   "lr": 0.001,
@@ -13,5 +14,10 @@
   "eps_start": 1.0,
   "eps_end": 0.05,
   "eps_decay": 3000,
-  "seed": 7
+  "actor_lr": 0.05,
+  "critic_lr": 0.1,
+  "clip_eps": 0.2,
+  "max_kl": 0.02,
+  "workers": 4,
+  "seeds": "7,11,19"
 }
