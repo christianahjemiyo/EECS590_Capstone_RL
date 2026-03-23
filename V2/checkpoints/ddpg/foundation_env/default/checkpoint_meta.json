@@ -1,0 +1,5 @@
+{
+  "algo": "ddpg",
+  "mdp": "outputs/V2/mdp/mdp.npz",
+  "outdir": "outputs\\V2\\advanced_ddpg"
+}

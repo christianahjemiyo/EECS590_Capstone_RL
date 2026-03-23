@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
 from eecs590_capstone.envs.mdp_sim_env import MDPSimEnv
 from eecs590_capstone.mdp.definitions import TabularMDP, rollout_policy
+from eecs590_capstone.utils.checkpoint_io import save_npz_checkpoint
 from eecs590_capstone.utils.io import save_json
 
 
@@ -71,7 +78,7 @@ def train_dqn(
     eps_end: float,
     eps_decay: int,
     seed: int,
-) -> tuple[dict[str, int], dict[str, float], dict[str, float], list[float], dict[str, list[float]]]:
+) -> tuple[dict[str, int], dict[str, float], dict[str, float], list[float], dict[str, list[float]], Net, Net]:
     rng = np.random.default_rng(seed)
     n_states, n_actions = env.n_states, env.n_actions
     online = init_net(n_states, n_actions, hidden, rng)
@@ -162,7 +169,7 @@ def train_dqn(
         "mean_loss": float(np.mean(losses)) if losses else 0.0,
     }
     q_json = {str(s): q_all[s].tolist() for s in range(n_states)}
-    return policy, values, train_info, episode_returns, q_json
+    return policy, values, train_info, episode_returns, q_json, online, target
 
 
 def main() -> None:
@@ -186,7 +193,7 @@ def main() -> None:
 
     env = MDPSimEnv(mdp_path=args.mdp, seed=args.seed, max_steps=args.max_steps)
     mdp = load_mdp(Path(args.mdp))
-    policy, values, train_info, curve, q_json = train_dqn(
+    policy, values, train_info, curve, q_json, online_net, target_net = train_dqn(
         env=env,
         episodes=args.episodes,
         gamma=args.gamma,
@@ -212,6 +219,15 @@ def main() -> None:
     save_json(outdir / "learning_curve.json", {"episode_returns": curve})
     save_json(outdir / "eval_results.json", eval_metrics)
     save_json(outdir / "q_values.json", q_json)
+    ckpt_dir = Path("V2/checkpoints") / "dqn" / "foundation_env" / "default"
+    save_npz_checkpoint(
+        ckpt_dir / "model_checkpoint.npz",
+        {
+            "online": {"w1": online_net.w1, "b1": online_net.b1, "w2": online_net.w2, "b2": online_net.b2},
+            "target": {"w1": target_net.w1, "b1": target_net.b1, "w2": target_net.w2, "b2": target_net.b2},
+        },
+    )
+    save_json(ckpt_dir / "checkpoint_meta.json", {"algo": "dqn", "mdp": args.mdp, "outdir": str(outdir)})
 
     print("DQN training complete")
     print(eval_metrics)

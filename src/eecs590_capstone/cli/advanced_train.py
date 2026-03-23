@@ -15,6 +15,7 @@ from eecs590_capstone.agents.rl_advanced import (
 )
 from eecs590_capstone.envs.mdp_sim_env import MDPSimEnv
 from eecs590_capstone.mdp.definitions import TabularMDP, rollout_policy
+from eecs590_capstone.utils.checkpoint_io import save_npz_checkpoint
 from eecs590_capstone.utils.io import save_json
 
 
@@ -116,6 +117,10 @@ def main() -> None:
     save_json(outdir / "eval_results.json", eval_metrics)
     if result.Q is not None:
         save_json(outdir / "q_values.json", result.Q)
+    if result.checkpoint is not None:
+        ckpt_dir = Path("V2/checkpoints") / args.algo / "foundation_env" / "default"
+        save_npz_checkpoint(ckpt_dir / "model_checkpoint.npz", result.checkpoint)
+        save_json(ckpt_dir / "checkpoint_meta.json", {"algo": args.algo, "mdp": args.mdp, "outdir": str(outdir)})
 
     print(f"Advanced RL training complete: {args.algo}")
     print(eval_metrics)

@@ -66,6 +66,16 @@ def main() -> None:
         cwd=repo_root,
         env=env,
     )
+    run_cmd(
+        [
+            py,
+            "V2/scripts/plot_v2_nn_saliency.py",
+            "--outdir",
+            str(out_root / "figures"),
+        ],
+        cwd=repo_root,
+        env=env,
+    )
 
     if not args.skip_offline:
         offline_cmd = [

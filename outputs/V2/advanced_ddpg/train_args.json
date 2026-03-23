@@ -1,0 +1,18 @@
+{
+  "mdp": "outputs/V2/mdp/mdp.npz",
+  "algo": "ddpg",
+  "episodes": 4000,
+  "max_steps": 30,
+  "gamma": 0.99,
+  "actor_lr": 0.02,
+  "critic_lr": 0.05,
+  "lr": 0.05,
+  "noise_std": 0.35,
+  "policy_noise": 0.2,
+  "delay": 2,
+  "alpha": 0.1,
+  "n_obs": 3,
+  "hidden_size": 8,
+  "seed": 7,
+  "outdir": "outputs/V2/advanced_ddpg"
+}

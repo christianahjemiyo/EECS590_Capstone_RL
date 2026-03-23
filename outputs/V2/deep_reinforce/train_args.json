@@ -1,0 +1,23 @@
+{
+  "mdp": "outputs/V2/mdp/mdp.npz",
+  "algo": "reinforce",
+  "episodes": 4000,
+  "max_steps": 30,
+  "gamma": 0.99,
+  "lr": 0.001,
+  "hidden": 32,
+  "batch_size": 64,
+  "replay_size": 20000,
+  "warmup_steps": 300,
+  "target_update": 200,
+  "eps_start": 1.0,
+  "eps_end": 0.05,
+  "eps_decay": 3000,
+  "actor_lr": 0.05,
+  "critic_lr": 0.1,
+  "clip_eps": 0.2,
+  "max_kl": 0.02,
+  "workers": 4,
+  "seed": 7,
+  "outdir": "outputs/V2/deep_reinforce"
+}

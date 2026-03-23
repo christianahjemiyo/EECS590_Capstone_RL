@@ -13,6 +13,7 @@ class TrainResult:
     train_info: Dict[str, float]
     episode_returns: list[float]
     Q: Dict[str, list[float]] | None = None
+    checkpoint: dict | None = None
 
 
 def epsilon_schedule(step: int, eps_start: float, eps_end: float, decay_steps: int) -> float:
@@ -221,6 +222,28 @@ def train_dqn_variant(
         },
         episode_returns=episode_returns,
         Q=q_json,
+        checkpoint={
+            "online": {
+                "w1": online.w1,
+                "b1": online.b1,
+                "w2": online.w2,
+                "b2": online.b2,
+                "v_head": online.v_head if online.v_head is not None else np.array([]),
+                "v_bias": online.v_bias if online.v_bias is not None else np.array([]),
+                "a_head": online.a_head if online.a_head is not None else np.array([]),
+                "a_bias": online.a_bias if online.a_bias is not None else np.array([]),
+            },
+            "target": {
+                "w1": target.w1,
+                "b1": target.b1,
+                "w2": target.w2,
+                "b2": target.b2,
+                "v_head": target.v_head if target.v_head is not None else np.array([]),
+                "v_bias": target.v_bias if target.v_bias is not None else np.array([]),
+                "a_head": target.a_head if target.a_head is not None else np.array([]),
+                "a_bias": target.a_bias if target.a_bias is not None else np.array([]),
+            },
+        },
     )
 
 
@@ -276,7 +299,13 @@ def reinforce(env, episodes: int, alpha: float, gamma: float, seed: int) -> Trai
         returns.append(float(ep_return))
 
     policy, values = policy_value_tables(theta, baseline)
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes)}, episode_returns=returns)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes)},
+        episode_returns=returns,
+        checkpoint={"theta": theta, "baseline": baseline},
+    )
 
 
 def a2c(env, episodes: int, alpha_actor: float, alpha_critic: float, gamma: float, seed: int) -> TrainResult:
@@ -304,7 +333,13 @@ def a2c(env, episodes: int, alpha_actor: float, alpha_critic: float, gamma: floa
         returns.append(float(ep_return))
 
     policy, values = policy_value_tables(theta, value)
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes)}, episode_returns=returns)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes)},
+        episode_returns=returns,
+        checkpoint={"theta": theta, "value": value},
+    )
 
 
 def a3c(env, episodes: int, alpha_actor: float, alpha_critic: float, gamma: float, seed: int, workers: int = 4) -> TrainResult:
@@ -339,6 +374,7 @@ def a3c(env, episodes: int, alpha_actor: float, alpha_critic: float, gamma: floa
         V=values,
         train_info={"episodes": float(episodes), "workers": float(workers)},
         episode_returns=returns,
+        checkpoint={"theta": theta, "value": value},
     )
 
 
@@ -385,7 +421,13 @@ def ppo(
         returns.append(float(ep_return))
 
     policy, values = policy_value_tables(theta, value)
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes), "clip_eps": float(clip_eps)}, episode_returns=returns)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes), "clip_eps": float(clip_eps)},
+        episode_returns=returns,
+        checkpoint={"theta": theta, "value": value},
+    )
 
 
 def trpo(env, episodes: int, alpha_actor: float, alpha_critic: float, gamma: float, max_kl: float, seed: int) -> TrainResult:
@@ -430,4 +472,10 @@ def trpo(env, episodes: int, alpha_actor: float, alpha_critic: float, gamma: flo
         returns.append(float(ep_return))
 
     policy, values = policy_value_tables(theta, value)
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes), "max_kl": float(max_kl)}, episode_returns=returns)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes), "max_kl": float(max_kl)},
+        episode_returns=returns,
+        checkpoint={"theta": theta, "value": value},
+    )

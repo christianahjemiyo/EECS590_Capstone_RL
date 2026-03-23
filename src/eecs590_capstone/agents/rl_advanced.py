@@ -13,6 +13,7 @@ class TrainResult:
     train_info: Dict[str, float]
     episode_returns: list[float]
     Q: Dict[str, list[float]] | None = None
+    checkpoint: dict | None = None
 
 
 def state_features(state: int, n_states: int) -> np.ndarray:
@@ -89,7 +90,13 @@ def ddpg(
         mu = continuous_actor_output(actor, s, env.n_states, env.n_actions)
         policy[str(s)] = to_discrete_action(mu, env.n_actions)
         values[str(s)] = q_linear(critic, s, env.n_states, mu, env.n_actions)
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes)}, episode_returns=returns)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes)},
+        episode_returns=returns,
+        checkpoint={"actor": actor, "critic": critic},
+    )
 
 
 def td3(
@@ -156,7 +163,13 @@ def td3(
             q_linear(critic1, s, env.n_states, mu, env.n_actions),
             q_linear(critic2, s, env.n_states, mu, env.n_actions),
         )
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes), "delay": float(delay)}, episode_returns=returns)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes), "delay": float(delay)},
+        episode_returns=returns,
+        checkpoint={"actor": actor, "critic1": critic1, "critic2": critic2},
+    )
 
 
 def sac(env, episodes: int, alpha: float, lr: float, gamma: float, seed: int) -> TrainResult:
@@ -192,7 +205,14 @@ def sac(env, episodes: int, alpha: float, lr: float, gamma: float, seed: int) ->
     policy = {str(s): int(np.argmax(logits[s])) for s in range(env.n_states)}
     values = {str(s): float(np.max(q_values[s])) for s in range(env.n_states)}
     q_json = {str(s): q_values[s].tolist() for s in range(env.n_states)}
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes), "alpha": float(alpha)}, episode_returns=returns, Q=q_json)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes), "alpha": float(alpha)},
+        episode_returns=returns,
+        Q=q_json,
+        checkpoint={"logits": logits, "q_values": q_values},
+    )
 
 
 def learned_environment_model(
@@ -241,7 +261,14 @@ def learned_environment_model(
         q_json[str(s)] = q_arr.tolist()
         policy[str(s)] = int(np.argmax(q_arr))
     values = {str(s): float(V[s]) for s in range(mdp.n_states)}
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes), "max_steps": float(max_steps)}, episode_returns=[], Q=q_json)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes), "max_steps": float(max_steps)},
+        episode_returns=[],
+        Q=q_json,
+        checkpoint={"p_hat": p_hat, "r_hat": r_hat},
+    )
 
 
 def make_observation_model(n_states: int, n_obs: int) -> np.ndarray:
@@ -286,7 +313,14 @@ def belief_state_update(
     policy = {str(s): int(np.argmax(q_values[s])) for s in range(mdp.n_states)}
     values = {str(s): float(np.max(q_values[s])) for s in range(mdp.n_states)}
     q_json = {str(s): q_values[s].tolist() for s in range(mdp.n_states)}
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes), "n_obs": float(n_obs)}, episode_returns=[float(x) for x in returns], Q=q_json)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes), "n_obs": float(n_obs)},
+        episode_returns=[float(x) for x in returns],
+        Q=q_json,
+        checkpoint={"q_values": q_values, "obs_model": obs_model},
+    )
 
 
 def rnn_based_rl(
@@ -345,4 +379,11 @@ def rnn_based_rl(
         policy[str(s)] = int(np.argmax(q))
         values[str(s)] = float(np.max(q))
         q_json[str(s)] = q.tolist()
-    return TrainResult(policy=policy, V=values, train_info={"episodes": float(episodes), "hidden_size": float(hidden_size)}, episode_returns=returns, Q=q_json)
+    return TrainResult(
+        policy=policy,
+        V=values,
+        train_info={"episodes": float(episodes), "hidden_size": float(hidden_size)},
+        episode_returns=returns,
+        Q=q_json,
+        checkpoint={"w_h": w_h, "w_q": w_q, "obs_model": obs_model},
+    )

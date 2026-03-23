@@ -41,6 +41,12 @@ In this project, the environment is fixed after the MDP is built. Algorithms do 
 - `V2/scripts/plot_v2_saliency.py`
   Produces V2 interpretability visualizations for state-action preference and feature impact.
 
+- `V2/scripts/plot_v2_nn_saliency.py`
+  Produces neural saliency views from the saved DQN checkpoint.
+
+- `V2/scripts/rasterize_v2_state_action.py`
+  Produces a rasterized state-action value image for quick inspection utilities next to saliency.
+
 - `V2/scripts/write_v2_interpretation.py`
   Writes plain-language interpretation notes for the baseline V2 outputs.
 
@@ -52,6 +58,9 @@ In this project, the environment is fixed after the MDP is built. Algorithms do 
 
 - `V2/scripts/run_v2_tabular_suite.py`
   Runs the tabular RL family for class coverage.
+
+- `V2/scripts/run_v2_classical_views.py`
+  Runs explicit forward-view and backward-view classical RL variants for TD and SARSA family methods.
 
 - `V2/scripts/run_v2_approx_suite.py`
   Runs the function-approximation family.
@@ -77,6 +86,15 @@ In this project, the environment is fixed after the MDP is built. Algorithms do 
 
 - `V2/docs/external_validation_plan.md`
 - `V2/docs/algorithm_coverage_v2.md`
+- `V2/docs/classical_rl_views.md`
+- `V2/docs/technical-challenges.md`
+- `V2/docs/pomdp_formalization.md`
+
+### Architecture and checkpoint support
+
+- `V2/architectures/`
+- `V2/checkpoints/`
+- `V2/replay_buffers/`
 
 ## Methodology
 
@@ -154,6 +172,27 @@ Important note:
 
 - Some advanced methods are adapted to the discrete V2 MDP so they can be compared in one benchmark.
 - This is acceptable for course coverage and comparative analysis, but those methods should not be presented as the most natural fit for a small tabular clinical MDP.
+
+## DRL Justification
+
+The main V2 environment is a compact tabular clinical decision problem, so not every DRL algorithm is equally natural for it. The most appropriate deep methods for this setting are the value-based and actor-critic methods that can still work well with discrete actions and relatively small state representations.
+
+The strongest practical choices for this environment are:
+
+- `DQN`, because the action space is discrete and the environment can still benefit from nonlinear value estimation
+- `Double DQN`, because it reduces overestimation bias compared with plain DQN
+- `Dueling DQN`, because it can separate the value of being in a state from the advantage of taking a specific action
+- `REINFORCE`, `A2C`, `A3C`, `PPO`, and `TRPO`, because they provide direct policy-learning baselines and useful actor-critic comparisons in the same environment
+
+The less natural but still useful methods are:
+
+- `DDPG`, `TD3`, and `SAC`, because they are designed for continuous-control settings and therefore require adaptation in V2
+
+Why these choices still make sense:
+
+- the pros are broad algorithm coverage, comparison across RL families, and a clear record of how discrete-clinical environments differ from continuous-control tasks
+- the cons are manageable because the environment is stable, compact, and cheap enough to rerun while tuning or debugging
+- even when these methods are not top performers, they still help show which algorithm families fit the environment well and which ones do not
 
 ## 4) Environment and Evaluation Meaning
 
@@ -239,6 +278,8 @@ python V2/scripts/write_v2_interpretation.py
 
 ```powershell
 python V2/scripts/plot_v2_saliency.py --data data/processed/train.csv --outdir outputs/V2/figures
+python V2/scripts/plot_v2_nn_saliency.py --outdir outputs/V2/figures
+python V2/scripts/rasterize_v2_state_action.py --q-path outputs/V2/rl/q_values.json --out outputs/V2/figures/state_action_raster.png
 ```
 
 ### F. Offline benchmark
@@ -252,6 +293,7 @@ python V2/scripts/run_v2_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir outp
 
 ```powershell
 python V2/scripts/run_v2_tabular_suite.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/tabular_suite --seeds 7,11,19,23,29
+python V2/scripts/run_v2_classical_views.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/classical_views --seeds 7,11,19
 python V2/scripts/run_v2_approx_suite.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/approx_suite --seeds 7,11,19,23,29
 python V2/scripts/run_v2_deep_suite.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/deep_suite --seeds 7,11,19
 python V2/scripts/run_v2_advanced_suite.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/advanced_suite --seeds 7,11,19
@@ -261,6 +303,13 @@ python V2/scripts/run_v2_advanced_suite.py --mdp outputs/V2/mdp/mdp.npz --outdir
 
 ```powershell
 python V2/scripts/run_v2_all_algorithms.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/all_algorithms --seeds 7,11,19
+```
+
+### I. Replay buffer management
+
+```powershell
+python V2/scripts/manage_replay_buffer.py --root V2/replay_buffers/raw --algo dqn --task foundation_env --freshness fresh --max-gb 1.0 --keep-latest 10
+python V2/scripts/bayes_update.py --prior 0.2,0.5,0.3 --likelihood 0.7,0.2,0.5 --out outputs/V2/bayes_update_example.json
 ```
 
 ## 7) Most Important Outputs
@@ -279,6 +328,9 @@ python V2/scripts/run_v2_all_algorithms.py --mdp outputs/V2/mdp/mdp.npz --outdir
 - `outputs/V2/figures/saliency_feature_outcome_heatmap.png`
 - `outputs/V2/figures/saliency_feature_scores.csv`
 - `outputs/V2/figures/SALIENCY_INTERPRETATION.md`
+- `outputs/V2/figures/nn_saliency_dqn_input_heatmap.png`
+- `outputs/V2/figures/nn_saliency_dqn_hidden_heatmap.png`
+- `outputs/V2/figures/NN_SALIENCY_INTERPRETATION.md`
 
 ### Tabular family outputs
 
@@ -287,6 +339,12 @@ python V2/scripts/run_v2_all_algorithms.py --mdp outputs/V2/mdp/mdp.npz --outdir
 - `outputs/V2/tabular_suite/figures/tabular_rollout_comparison.png`
 - `outputs/V2/tabular_suite/figures/tabular_learning_curves.png`
 
+### Classical forward-view and backward-view outputs
+
+- `outputs/V2/classical_views/summary_metrics.csv`
+- `outputs/V2/classical_views/per_seed_metrics.csv`
+- `outputs/V2/classical_views/figures/classical_views_comparison.png`
+
 ### All-algorithm comparison outputs
 
 - `outputs/V2/all_algorithms/summary_metrics.csv`
@@ -294,6 +352,15 @@ python V2/scripts/run_v2_all_algorithms.py --mdp outputs/V2/mdp/mdp.npz --outdir
 - `outputs/V2/all_algorithms/figures/all_algorithms_rollout_comparison.png`
 - `outputs/V2/all_algorithms/figures/top10_algorithms_rollout.png`
 - `outputs/V2/all_algorithms/INTERPRETATION_ALL_ALGOS.md`
+
+### Supporting V2 infrastructure
+
+- `V2/docs/technical-challenges.md`
+- `V2/docs/classical_rl_views.md`
+- `V2/docs/pomdp_formalization.md`
+- `V2/architectures/`
+- `V2/checkpoints/`
+- `V2/replay_buffers/`
 
 ## 8) How to Explain the Results
 

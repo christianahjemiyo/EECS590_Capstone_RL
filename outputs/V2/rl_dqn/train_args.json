@@ -1,6 +1,6 @@
 {
   "mdp": "outputs/V2/mdp/mdp.npz",
-  "outdir": "outputs\\V2\\rl_dqn",
+  "outdir": "outputs/V2/rl_dqn",
   "episodes": 4000,
   "max_steps": 30,
   "gamma": 0.99,
