@@ -5,6 +5,7 @@ This V2 workflow now includes user-facing runners for all implemented algorithm 
 ## V2 runners
 
 - `V2/scripts/run_v2_tabular_suite.py`
+- `V2/scripts/run_v2_classical_views.py`
 - `V2/scripts/run_v2_approx_suite.py`
 - `V2/scripts/run_v2_deep_suite.py`
 - `V2/scripts/run_v2_advanced_suite.py`
