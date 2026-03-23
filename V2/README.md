@@ -44,6 +44,9 @@ In this project, the environment is fixed after the MDP is built. Algorithms do 
 - `V2/scripts/plot_v2_nn_saliency.py`
   Produces neural saliency views from the saved DQN checkpoint.
 
+- `V2/scripts/plot_v2_special_visuals.py`
+  Produces extra summary figures for algorithm families, reward/cost tradeoffs, and policy flow across states.
+
 - `V2/scripts/rasterize_v2_state_action.py`
   Produces a rasterized state-action value image for quick inspection utilities next to saliency.
 
@@ -279,6 +282,7 @@ python V2/scripts/write_v2_interpretation.py
 ```powershell
 python V2/scripts/plot_v2_saliency.py --data data/processed/train.csv --outdir outputs/V2/figures
 python V2/scripts/plot_v2_nn_saliency.py --outdir outputs/V2/figures
+python V2/scripts/plot_v2_special_visuals.py --outdir outputs/V2/figures
 python V2/scripts/rasterize_v2_state_action.py --q-path outputs/V2/rl/q_values.json --out outputs/V2/figures/state_action_raster.png
 ```
 
@@ -331,6 +335,10 @@ python V2/scripts/bayes_update.py --prior 0.2,0.5,0.3 --likelihood 0.7,0.2,0.5 -
 - `outputs/V2/figures/nn_saliency_dqn_input_heatmap.png`
 - `outputs/V2/figures/nn_saliency_dqn_hidden_heatmap.png`
 - `outputs/V2/figures/NN_SALIENCY_INTERPRETATION.md`
+- `outputs/V2/figures/algorithm_family_overview.png`
+- `outputs/V2/figures/reward_cost_tradeoff.png`
+- `outputs/V2/figures/policy_transition_diagram.png`
+- `outputs/V2/figures/SPECIAL_VISUALS_INTERPRETATION.md`
 
 ### Tabular family outputs
 
@@ -362,9 +370,9 @@ python V2/scripts/bayes_update.py --prior 0.2,0.5,0.3 --likelihood 0.7,0.2,0.5 -
 - `V2/checkpoints/`
 - `V2/replay_buffers/`
 
-## 8) How to Explain the Results
+## 8) Reading the Results
 
-The main interpretation rule is simple:
+The main rule for reading the V2 results is simple:
 
 - less negative return is better
 - higher value means the algorithm found a better long-term intervention strategy
@@ -376,7 +384,7 @@ What usually happens in V2:
 - DQN-family methods can also perform well, especially when nonlinear action-value estimation helps.
 - Adapted continuous-control and partial-observability methods are included for breadth and comparison, but they are not always the best natural fit for this exact environment.
 
-This is not a weakness. It is a reasonable result for this kind of environment:
+This is not a weakness. It is a reasonable outcome for this kind of environment:
 
 - algorithm performance depends on environment structure
 - more complex methods do not automatically outperform simpler methods
@@ -418,18 +426,22 @@ The following files are the easiest places to start when reviewing the main V2 r
 
 ## Limitations and Future Work
 
-The current V2 environment is still a compact tabular MDP. That makes it excellent for benchmarking and course coverage, but it also creates some limitations:
+The current V2 environment is still a compact tabular MDP. That makes it useful for benchmarking and course coverage, but it also creates some limits that are worth stating clearly.
+
+### Current limitations
 
 - Exact and tabular methods naturally have an advantage because the environment is relatively small and structured.
 - Some advanced methods such as `DDPG`, `TD3`, `SAC`, belief-state methods, and RNN-based RL are implemented through adaptations so they can run in the same V2 framework.
 - The current saliency pipeline is useful for interpretability, but it can still be extended further with stronger gradient-based neural attribution methods.
 - Reward design strongly influences ranking. If intervention costs dominate benefits, even strong learning methods may prefer conservative policies.
 
-Future work can improve the project in several ways:
+### Next improvements
+
+There are several natural ways to extend the project:
 
 - build a richer or partially observed environment where belief-state and RNN methods become more natural
 - extend the action space beyond the current discrete intervention setup
 - strengthen offline evaluation with more realistic logged clinical trajectories
 - calibrate the reward function to better reflect desired clinical tradeoffs
-- add stronger neural interpretability methods for DQN-family and policy-gradient models
+- continue improving neural interpretability for DQN-family and policy-gradient models
 - perform external validation on a second dataset or cohort split
