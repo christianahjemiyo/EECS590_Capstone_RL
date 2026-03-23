@@ -1,12 +1,12 @@
 # V2 Capstone Workflow
 
-Version 2 is the main experimental workflow for the capstone. It packages the readmission-focused data pipeline, the MDP construction process, the algorithm training scripts, the interpretability outputs, and the final benchmark comparisons into one reproducible structure under `V2/` and `outputs/V2/`.
+Version 2 is the main workflow for the capstone. It brings together the readmission-focused data pipeline, MDP construction, training scripts, interpretation outputs, and benchmark comparisons under `V2/` and `outputs/V2/`.
 
-The purpose of V2 is not only to produce a single good policy. It is to show full algorithm coverage, compare algorithm families under one environment, and explain which methods fit this clinical decision problem best.
+The goal of V2 is not just to produce one good policy. It also covers the full set of algorithms used in class, compares them in the same environment, and shows which methods fit this clinical decision problem best.
 
 ## Abstract
 
-This version of the capstone studies how reinforcement learning can model sequential clinical intervention decisions related to hospital readmission risk. The workflow begins with MIMIC-based preprocessing, converts the resulting patient data into a tabular Markov Decision Process, and evaluates a broad set of Dynamic Programming, tabular RL, function-approximation, deep RL, actor-critic, model-based, and partial-observability methods. The central objective is to identify which algorithms learn the strongest long-term intervention policies under the project reward design while also demonstrating full class algorithm coverage. V2 therefore serves both as an experimental benchmark and as a comparative methodological study of RL families in a clinical decision-making setting.
+This version of the capstone studies how reinforcement learning can model sequential clinical intervention decisions related to hospital readmission risk. The workflow starts with MIMIC-based preprocessing, converts the resulting patient data into a tabular Markov Decision Process, and evaluates a broad set of Dynamic Programming, tabular RL, function-approximation, deep RL, actor-critic, model-based, and partial-observability methods. The main objective is to identify which algorithms learn the strongest long-term intervention policies under the current reward design while also showing full class algorithm coverage.
 
 ## 1) What V2 Is Solving
 
@@ -100,7 +100,7 @@ The V2 methodology follows a consistent experimental structure:
 6. Interpretation
    Saliency, feature-impact views, and written interpretation files are used to explain why certain policies behave as they do.
 
-This methodology is useful because it keeps the comparison controlled. Every method is judged against the same underlying V2 problem rather than being run on separate tasks.
+This setup keeps the comparison controlled. Every method is judged against the same V2 problem instead of being run on different tasks.
 
 ## 3) Algorithm Coverage in V2
 
@@ -309,7 +309,7 @@ What usually happens in V2:
 - DQN-family methods can also perform well, especially when nonlinear action-value estimation helps.
 - Adapted continuous-control and partial-observability methods are included for breadth and comparison, but they are not always the best natural fit for this exact environment.
 
-This is not a weakness. It is a valid scientific conclusion:
+This is not a weakness. It is a reasonable result for this kind of environment:
 
 - algorithm performance depends on environment structure
 - more complex methods do not automatically outperform simpler methods
@@ -329,9 +329,9 @@ Different algorithm families help in different ways:
 - Actor-critic and policy-gradient methods show direct policy optimization.
 - Model-based, belief-state, and RNN methods show how the project could extend to uncertainty and partial observability.
 
-## 10) Recommended Files to Show Your Instructor
+## 10) Key V2 Output Files
 
-If you need a short list of files to present, use these first:
+The following files are the easiest places to start when reviewing the main V2 results:
 
 - `outputs/V2/all_algorithms/summary_metrics.csv`
 - `outputs/V2/all_algorithms/figures/all_algorithms_rollout_comparison.png`
