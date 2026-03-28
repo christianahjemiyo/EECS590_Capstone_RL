@@ -66,8 +66,11 @@ def plot_state_action_saliency(
     ax.set_yticklabels(state_labels)
     ax.set_xlabel("Intervention Action")
     ax.set_ylabel("Risk State")
-    title_suffix = f" | bins={risk_bins}" if risk_bins else ""
-    ax.set_title(f"V2 Saliency Map: Action Impact by Risk State{title_suffix}")
+    fig.suptitle("Which Actions the Policy Favors in Each Risk State", y=0.985)
+    subtitle = "Asterisk marks the chosen policy action"
+    if risk_bins:
+        subtitle += f" | risk bins: {risk_bins}"
+    ax.set_title(subtitle, fontsize=9, color="#5b544d", pad=10)
 
     for s in range(n_states):
         for a in range(n_actions):
@@ -84,7 +87,7 @@ def plot_state_action_saliency(
                 color="black",
             )
 
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0, 1, 0.86))
     fig.savefig(out_path, dpi=190)
     plt.close(fig)
 
@@ -159,13 +162,19 @@ def plot_feature_saliency_heatmap(df_saliency: pd.DataFrame, out_path: Path, top
     ax.set_xticklabels(cols)
     ax.set_yticks(np.arange(len(labels)))
     ax.set_yticklabels(labels)
-    ax.set_title("V2 Saliency Map: Which Features Drive Readmission Risk vs Recovery")
+    fig.suptitle("Which Patient Features Drive Risk vs Recovery Signals", y=0.985)
+    ax.set_title(
+        "Top features ranked by weighted lift under the V2 readmission outcome labels",
+        fontsize=9,
+        color="#5b544d",
+        pad=10,
+    )
 
     for i in range(mat.shape[0]):
         for j in range(mat.shape[1]):
             ax.text(j, i, f"{mat[i, j]:.3f}", ha="center", va="center", fontsize=8, color="black")
 
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0, 1, 0.86))
     fig.savefig(out_path, dpi=190)
     plt.close(fig)
 

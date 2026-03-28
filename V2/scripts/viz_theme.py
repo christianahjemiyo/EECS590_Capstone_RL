@@ -6,53 +6,66 @@ import matplotlib.pyplot as plt
 
 
 V2_PALETTE = {
-    "DP_PolicyIter": "#264653",
-    "DP_ValueIter": "#2a9d8f",
-    "Policy Iter": "#264653",
-    "Value Iter": "#2a9d8f",
-    "Q_Learning": "#e76f51",
-    "Q-Learning": "#e76f51",
-    "Double_Q": "#6a4c93",
-    "Double Q-Learning": "#6a4c93",
-    "Offline_CQL": "#1d3557",
-    "Offline_IQL": "#457b9d",
-    "Behavior_Action0": "#8d99ae",
-    "mc": "#1d3557",
-    "td_n": "#457b9d",
-    "td_lambda": "#2a9d8f",
-    "sarsa_n": "#e9c46a",
-    "sarsa_lambda": "#f4a261",
-    "q_learning": "#e76f51",
-    "double_q_learning": "#6a4c93",
+    "DP_PolicyIter": "#203a43",
+    "DP_ValueIter": "#2c6e63",
+    "Policy Iter": "#203a43",
+    "Value Iter": "#2c6e63",
+    "DP": "#203a43",
+    "Tabular": "#2c6e63",
+    "Approximation": "#7f5539",
+    "Deep Value": "#c75b39",
+    "Actor-Critic": "#8c1c13",
+    "Advanced": "#5f0f40",
+    "Q_Learning": "#c75b39",
+    "Q-Learning": "#c75b39",
+    "Double_Q": "#7f5539",
+    "Double Q-Learning": "#7f5539",
+    "Offline_CQL": "#8c1c13",
+    "Offline_IQL": "#335c67",
+    "Behavior_Action0": "#7b8c7a",
+    "Intervention strength": "#2c6e63",
+    "Intervention cost": "#c75b39",
+    "mc": "#5f0f40",
+    "td_n": "#335c67",
+    "td_lambda": "#2c6e63",
+    "sarsa_n": "#d4a373",
+    "sarsa_lambda": "#b56576",
+    "q_learning": "#c75b39",
+    "double_q_learning": "#7f5539",
 }
 
 
 def apply_v2_theme() -> None:
     plt.rcParams.update(
         {
-            "figure.facecolor": "#f8f9fb",
-            "axes.facecolor": "#fdfdfd",
-            "axes.edgecolor": "#d8dbe2",
+            "figure.facecolor": "#f3efe6",
+            "axes.facecolor": "#fffdf8",
+            "axes.edgecolor": "#c9c1b7",
             "axes.grid": True,
-            "grid.color": "#e6e8ee",
-            "grid.linewidth": 0.8,
-            "grid.alpha": 1.0,
-            "font.family": "DejaVu Sans",
+            "grid.color": "#e2d9cc",
+            "grid.linewidth": 0.9,
+            "grid.alpha": 0.9,
+            "grid.linestyle": ":",
+            "font.family": "DejaVu Serif",
             "font.size": 10.0,
-            "axes.titlesize": 12.5,
+            "axes.titlesize": 13.0,
             "axes.labelsize": 10.5,
             "xtick.labelsize": 9.5,
             "ytick.labelsize": 9.5,
             "legend.fontsize": 9.0,
+            "axes.titleweight": "semibold",
+            "axes.labelcolor": "#2b2a28",
+            "xtick.color": "#3b3835",
+            "ytick.color": "#3b3835",
+            "text.color": "#2b2a28",
         }
     )
 
 
 def colors_for(labels: Iterable[str]) -> list[str]:
-    return [V2_PALETTE.get(str(x), "#577590") for x in labels]
+    return [V2_PALETTE.get(str(x), "#6b705c") for x in labels]
 
 
 def annotate_bars(ax, values: list[float], fmt: str = "{:.2f}") -> None:
     for i, v in enumerate(values):
-        ax.text(i, v, fmt.format(v), ha="center", va="bottom", fontsize=8, color="#2b2d42")
-
+        ax.text(i, v, fmt.format(v), ha="center", va="bottom", fontsize=8, color="#2f2724")

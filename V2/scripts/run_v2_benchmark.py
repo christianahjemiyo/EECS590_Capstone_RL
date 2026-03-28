@@ -16,6 +16,17 @@ from eecs590_capstone.mdp.definitions import TabularMDP, rollout_policy
 from viz_theme import apply_v2_theme, annotate_bars, colors_for
 
 
+DISPLAY_NAME = {
+    "Behavior_Action0": "Behavior\nBaseline",
+    "DP_PolicyIter": "Policy\nIteration",
+    "DP_ValueIter": "Value\nIteration",
+    "Double_Q": "Double\nQ-Learning",
+    "Offline_CQL": "Offline\nCQL",
+    "Offline_IQL": "Offline\nIQL",
+    "Q_Learning": "Q-Learning",
+}
+
+
 def load_mdp(path: Path) -> TabularMDP:
     data = np.load(path)
     return TabularMDP(P=data["P"], R=data["R"], terminal_states=[])
@@ -170,6 +181,10 @@ def write_csv(path: Path, rows: list[dict], fieldnames: list[str]) -> None:
         writer.writerows(rows)
 
 
+def pretty_label(name: str) -> str:
+    return DISPLAY_NAME.get(name, name.replace("_", " "))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="V2 benchmark: DP, online RL, and offline RL with multi-seed stats.")
     parser.add_argument("--mdp", default="outputs/V2/mdp/mdp.npz")
@@ -316,6 +331,7 @@ def main() -> None:
     )
 
     labels = [r["algo"] for r in summary_rows]
+    display_labels = [pretty_label(label) for label in labels]
     roll_means = [r["rollout_mean"] for r in summary_rows]
     roll_ci = [r["rollout_ci95"] for r in summary_rows]
     fqe_means = [r["fqe_mean"] for r in summary_rows]
@@ -323,31 +339,34 @@ def main() -> None:
 
     apply_v2_theme()
     x = np.arange(len(labels))
-    plt.figure(figsize=(11.3, 5.2))
-    plt.bar(x, roll_means, yerr=roll_ci, capsize=5, color=colors_for(labels), alpha=0.93)
-    annotate_bars(plt.gca(), roll_means, fmt="{:.2f}")
-    plt.xticks(x, labels, rotation=25, ha="right")
-    plt.ylabel("Avg Return")
-    plt.title("V2 Benchmark: Rollout Performance (mean +/- 95% CI)")
+    fig, ax = plt.subplots(figsize=(11.3, 5.2))
+    ax.bar(x, roll_means, yerr=roll_ci, capsize=5, color=colors_for(labels), alpha=0.93)
+    annotate_bars(ax, roll_means, fmt="{:.2f}")
+    ax.set_xticks(x, display_labels)
+    ax.set_ylabel("Average return")
+    fig.suptitle("Policy Performance Across Exact, Online, and Offline RL", y=0.985)
+    ax.set_title("Same clinical MDP, same reward design, 5 seeds, 95% confidence intervals", fontsize=9, color="#5b544d", pad=10)
+    fig.subplots_adjust(top=0.86)
     if "Behavior_Action0" in labels:
         b_idx = labels.index("Behavior_Action0")
         b = roll_means[b_idx]
-        plt.axhline(b, linestyle="--", linewidth=1.3, color="#6c757d")
-        plt.text(len(labels) - 0.2, b, "Behavior baseline", ha="right", va="bottom", fontsize=8, color="#6c757d")
-    plt.tight_layout()
-    plt.savefig(figdir / "benchmark_rollout_comparison.png", dpi=180)
-    plt.close()
+        ax.axhline(b, linestyle="--", linewidth=1.3, color="#6c757d")
+        ax.text(len(labels) - 0.2, b, "Behavior baseline", ha="right", va="bottom", fontsize=8, color="#6c757d")
+    fig.tight_layout(rect=(0, 0, 1, 0.86))
+    fig.savefig(figdir / "benchmark_rollout_comparison.png", dpi=180)
+    plt.close(fig)
 
     apply_v2_theme()
-    plt.figure(figsize=(11.3, 5.2))
-    plt.bar(x, fqe_means, yerr=fqe_ci, capsize=5, color=colors_for(labels), alpha=0.93)
-    annotate_bars(plt.gca(), fqe_means, fmt="{:.2f}")
-    plt.xticks(x, labels, rotation=25, ha="right")
-    plt.ylabel("FQE Value Estimate")
-    plt.title("V2 Benchmark: Offline Evaluation (mean +/- 95% CI)")
-    plt.tight_layout()
-    plt.savefig(figdir / "benchmark_fqe_comparison.png", dpi=180)
-    plt.close()
+    fig, ax = plt.subplots(figsize=(11.3, 5.2))
+    ax.bar(x, fqe_means, yerr=fqe_ci, capsize=5, color=colors_for(labels), alpha=0.93)
+    annotate_bars(ax, fqe_means, fmt="{:.2f}")
+    ax.set_xticks(x, display_labels)
+    ax.set_ylabel("FQE value estimate")
+    fig.suptitle("Offline Evaluation of Learned Policies", y=0.985)
+    ax.set_title("Fitted Q Evaluation on logged trajectories from the same environment", fontsize=9, color="#5b544d", pad=10)
+    fig.tight_layout(rect=(0, 0, 1, 0.86))
+    fig.savefig(figdir / "benchmark_fqe_comparison.png", dpi=180)
+    plt.close(fig)
 
     best_roll = max(summary_rows, key=lambda r: r["rollout_mean"])
     best_offline = max(

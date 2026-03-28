@@ -23,6 +23,10 @@ def smooth(y: np.ndarray, window: int = 100) -> np.ndarray:
     return np.convolve(y, w, mode="valid")
 
 
+def legend_label(name: str) -> str:
+    return f"{name} (smoothed)"
+
+
 def plot_learning_curve(rl_series: dict[str, Path], outdir: Path) -> None:
     apply_v2_theme()
     plt.figure(figsize=(7, 4))
@@ -38,19 +42,27 @@ def plot_learning_curve(rl_series: dict[str, Path], outdir: Path) -> None:
         sm = smooth(returns, window=100)
         xs = np.arange(len(sm))
         c = colors_for([name])[0]
-        plt.plot(xs, sm, label=f"{name} (smoothed)", linewidth=2.2, color=c)
+        plt.plot(xs, sm, label=legend_label(name), linewidth=2.2, color=c)
         plotted += 1
 
     if plotted == 0:
         raise FileNotFoundError("No learning_curve.json found for V2 RL outputs.")
 
-    plt.xlabel("Episode")
-    plt.ylabel("Return")
-    plt.title("V2 RL Learning Curves")
-    plt.legend(frameon=True)
-    plt.tight_layout()
-    plt.savefig(outdir / "rl_learning_curve.png", dpi=180)
-    plt.close()
+    fig = plt.gcf()
+    ax = plt.gca()
+    ax.set_xlabel("Training episode")
+    ax.set_ylabel("Smoothed return")
+    fig.suptitle("Learning Dynamics of Core RL Baselines", y=0.985)
+    ax.set_title(
+        "TD(0), SARSA, Q-Learning, Double Q-Learning, and DQN on the same V2 environment",
+        fontsize=9,
+        color="#5b544d",
+        pad=10,
+    )
+    ax.legend(frameon=True)
+    fig.tight_layout(rect=(0, 0, 1, 0.86))
+    fig.savefig(outdir / "rl_learning_curve.png", dpi=180)
+    plt.close(fig)
 
 
 def plot_algo_comparison(mdp_dir: Path, rl_series: dict[str, Path], outdir: Path) -> None:
@@ -74,11 +86,19 @@ def plot_algo_comparison(mdp_dir: Path, rl_series: dict[str, Path], outdir: Path
     colors = colors_for(labels)
     plt.bar(labels, means, yerr=stds, capsize=5, color=colors, alpha=0.92)
     annotate_bars(plt.gca(), means, fmt="{:.1f}")
-    plt.ylabel("Average Return")
-    plt.title("V2 Algorithm Comparison (higher is better)")
-    plt.tight_layout()
-    plt.savefig(outdir / "algo_avg_return_comparison.png", dpi=180)
-    plt.close()
+    fig = plt.gcf()
+    ax = plt.gca()
+    ax.set_ylabel("Average return")
+    fig.suptitle("Baseline Comparison on the Shared Clinical MDP", y=0.985)
+    ax.set_title(
+        "Less negative is better under the current intervention cost-benefit reward design",
+        fontsize=9,
+        color="#5b544d",
+        pad=10,
+    )
+    fig.tight_layout(rect=(0, 0, 1, 0.86))
+    fig.savefig(outdir / "algo_avg_return_comparison.png", dpi=180)
+    plt.close(fig)
 
 
 def main() -> None:

@@ -80,8 +80,23 @@ def plot_reward_cost_tradeoff(meta: dict, out_path: Path) -> None:
     width = 0.35
     apply_v2_theme()
     plt.figure(figsize=(8.2, 4.6))
-    plt.bar(x - width / 2, action_strengths, width=width, label="Intervention strength", alpha=0.9)
-    plt.bar(x + width / 2, action_costs, width=width, label="Intervention cost", alpha=0.9)
+    strength_color, cost_color = colors_for(["Intervention strength", "Intervention cost"])
+    plt.bar(
+        x - width / 2,
+        action_strengths,
+        width=width,
+        label="Intervention strength",
+        color=strength_color,
+        alpha=0.92,
+    )
+    plt.bar(
+        x + width / 2,
+        action_costs,
+        width=width,
+        label="Intervention cost",
+        color=cost_color,
+        alpha=0.92,
+    )
     plt.xticks(x, [f"A{i}" for i in range(len(action_strengths))])
     plt.ylabel("Value")
     plt.title("V2 Intervention Strength vs Cost")
@@ -121,7 +136,7 @@ def plot_policy_transition_diagram(meta: dict, policy: dict[str, int], out_path:
             risk_text = "mid risk"
         if s < len(risk_bins):
             risk_text = f"<= {risk_bins[s]:.2f}"
-        circle = plt.Circle((xs[s], ys[s]), 0.07, color="#dfe7ec", ec="#264653", lw=2)
+        circle = plt.Circle((xs[s], ys[s]), 0.07, color="#efe3d3", ec="#7f5539", lw=2)
         ax.add_patch(circle)
         ax.text(xs[s], ys[s] + 0.005, f"S{s}", ha="center", va="center", fontsize=11, weight="bold")
         ax.text(xs[s], ys[s] - 0.12, f"A{action}\nstr={strength:.2f}\ncost={cost:.2f}", ha="center", va="top", fontsize=8)

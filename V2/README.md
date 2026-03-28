@@ -4,9 +4,37 @@ Version 2 is the main workflow for the capstone. It brings together the readmiss
 
 The goal of V2 is not just to produce one good policy. It also covers the full set of algorithms used in class, compares them in the same environment, and shows which methods fit this clinical decision problem best.
 
+## Why This Version Exists
+
+V2 is the version I would defend in front of an instructor because it makes the project choices explicit instead of hiding them behind code. I did not build this workflow to say "I ran a lot of algorithms." I built it to answer a specific technical question:
+
+How do different reinforcement-learning families behave when they are forced to solve the same sequential clinical decision problem under the same reward design, the same state representation, and the same evaluation protocol?
+
+That question drove the design of V2:
+
+- I kept one shared environment so algorithm comparisons would be fair instead of anecdotal.
+- I included exact, tabular, approximate, deep, and offline methods so I could show where each family is strong and where it is mismatched.
+- I added saliency and interpretation outputs because a policy score alone is not enough in a clinical setting.
+- I added replay-buffer and offline evaluation workflows because clinical decision work often depends on logged data, not unlimited online interaction.
+- I documented partial-observability extensions because real patient state is never fully observed, even if the base benchmark starts from a compact tabular MDP.
+
+In short, V2 is not a larger version of V1. It is a more defensible version.
+
 ## Abstract
 
 This version of the capstone studies how reinforcement learning can model sequential clinical intervention decisions related to hospital readmission risk. The workflow starts with MIMIC-based preprocessing, converts the resulting patient data into a tabular Markov Decision Process, and evaluates a broad set of Dynamic Programming, tabular RL, function-approximation, deep RL, actor-critic, model-based, and partial-observability methods. The main objective is to identify which algorithms learn the strongest long-term intervention policies under the current reward design while also showing full class algorithm coverage.
+
+## What This Project Demonstrates
+
+This capstone is meant to demonstrate that I understand the RL pipeline end to end, not just how to call a training script.
+
+- I understand problem formulation: the clinical prediction task is converted into states, actions, transitions, and rewards.
+- I understand algorithm fit: some methods are natural for this environment and others are included to test adaptation limits.
+- I understand evaluation: methods are compared under shared conditions, with multi-seed summaries and offline metrics where appropriate.
+- I understand interpretation: policy behavior has to be inspected, not just scored.
+- I understand limitations: a compact tabular MDP is useful for controlled benchmarking, but it is not the final realism target.
+
+If an algorithm performs well, that is useful. If an algorithm underperforms for principled reasons, that is also useful. Both outcomes help explain the structure of the decision problem.
 
 ## 1) What V2 Is Solving
 
@@ -17,6 +45,8 @@ The project models sequential clinical intervention decisions related to hospita
 3. Train many reinforcement learning algorithms on the same environment.
 4. Compare learned policies using shared evaluation metrics.
 5. Interpret what the policy is doing and why.
+
+This design is intentional. A project like this can easily become misleading if each algorithm gets a slightly different environment, reward setup, or reporting style. V2 avoids that by standardizing the pipeline first and then varying the learning method.
 
 In this project, the environment is fixed after the MDP is built. Algorithms do not change the environment itself. Instead, they learn:
 
@@ -123,6 +153,15 @@ The V2 methodology follows a consistent experimental structure:
 
 This setup keeps the comparison controlled. Every method is judged against the same V2 problem instead of being run on different tasks.
 
+### Why each stage matters
+
+- Data preparation matters because poor preprocessing would produce unstable states and unreliable rewards.
+- State and action design matters because RL quality depends on whether the decision problem is encoded in a learnable way.
+- MDP construction matters because transition and reward definitions determine what the agent is actually optimizing.
+- Multi-family training matters because a single strong result does not reveal whether the success came from algorithm choice or from an easy environment.
+- Evaluation matters because training reward alone can be misleading, especially when comparing online and offline settings.
+- Interpretation matters because a clinically motivated policy should be explainable enough to audit.
+
 ## 3) Algorithm Coverage in V2
 
 V2 now includes the following algorithm families:
@@ -176,6 +215,8 @@ Important note:
 - Some advanced methods are adapted to the discrete V2 MDP so they can be compared in one benchmark.
 - This is acceptable for course coverage and comparative analysis, but those methods should not be presented as the most natural fit for a small tabular clinical MDP.
 
+This is one of the main points I want the instructor to see: I am not claiming every algorithm belongs here equally. I am using the broad coverage to test algorithm-environment fit, not to force an artificial story that every method should win.
+
 ## DRL Justification
 
 The main V2 environment is a compact tabular clinical decision problem, so not every DRL algorithm is equally natural for it. The most appropriate deep methods for this setting are the value-based and actor-critic methods that can still work well with discrete actions and relatively small state representations.
@@ -196,6 +237,8 @@ Why these choices still make sense:
 - the pros are broad algorithm coverage, comparison across RL families, and a clear record of how discrete-clinical environments differ from continuous-control tasks
 - the cons are manageable because the environment is stable, compact, and cheap enough to rerun while tuning or debugging
 - even when these methods are not top performers, they still help show which algorithm families fit the environment well and which ones do not
+
+The important reasoning is that "included" does not mean "best suited." In this capstone, I use method breadth as an experimental lens. That distinction matters because it shows I am making model-selection judgments instead of treating the project like a black-box leaderboard.
 
 ## 4) Environment and Evaluation Meaning
 
@@ -293,6 +336,12 @@ python V2/scripts/offline_rl_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir 
 python V2/scripts/run_v2_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/benchmark --seeds 5
 ```
 
+Why I included this:
+
+- Offline RL is relevant because real clinical settings often begin with logged trajectories rather than unconstrained live experimentation.
+- FQE and offline comparisons make the project more rigorous than reporting online rollout reward alone.
+- This helps separate "can learn from interaction" from "can learn from fixed data."
+
 ### G. Full algorithm family coverage
 
 ```powershell
@@ -315,6 +364,12 @@ python V2/scripts/run_v2_all_algorithms.py --mdp outputs/V2/mdp/mdp.npz --outdir
 python V2/scripts/manage_replay_buffer.py --root V2/replay_buffers/raw --algo dqn --task foundation_env --freshness fresh --max-gb 1.0 --keep-latest 10
 python V2/scripts/bayes_update.py --prior 0.2,0.5,0.3 --likelihood 0.7,0.2,0.5 --out outputs/V2/bayes_update_example.json
 ```
+
+Why I included this:
+
+- Replay buffers are standard in deep RL, but in this project they are also part of reproducibility and experiment hygiene.
+- Organizing replay data by algorithm, task, and freshness makes offline comparisons auditable.
+- This makes it possible to discuss logged-data experiments as a controlled workflow rather than as ad hoc files on disk.
 
 ## 7) Most Important Outputs
 
@@ -390,6 +445,8 @@ This is not a weakness. It is a reasonable outcome for this kind of environment:
 - more complex methods do not automatically outperform simpler methods
 - exact and tabular methods can remain strongest when the MDP is small and well structured
 
+That interpretation is important. If simpler methods win, I would not treat that as a failure of the project. I would treat it as evidence that the benchmark is telling the truth about the environment rather than flattering the most fashionable model.
+
 ## 9) How Each Algorithm Helps the Project
 
 The project goal is to learn intervention strategies that reduce modeled readmission risk while balancing action cost.
@@ -403,6 +460,8 @@ Different algorithm families help in different ways:
 - Deep RL methods show nonlinear value learning and policy improvement.
 - Actor-critic and policy-gradient methods show direct policy optimization.
 - Model-based, belief-state, and RNN methods show how the project could extend to uncertainty and partial observability.
+
+This section reflects the central philosophy of V2: each algorithm family is there for a reason. I am not using them as decoration. I am using them to answer different parts of the same research question.
 
 ## 10) Key V2 Output Files
 
@@ -423,6 +482,14 @@ The following files are the easiest places to start when reviewing the main V2 r
 - Reviewers can inspect outputs without rerunning every experiment.
 - V1 and V2 remain cleanly separated.
 - The benchmark becomes a stable record of what was run and what performed best.
+
+## 12) Visualization Philosophy
+
+The plots in V2 are intentionally styled to look like part of a coherent research workflow rather than default library output.
+
+- I use a custom palette so benchmark families are visually distinct and easier to track across figures.
+- I avoid default-looking classroom plots because presentation quality affects whether the analysis feels deliberate.
+- The styling is meant to support interpretation, not distract from it: readable labels, consistent colors, and figures that can be discussed in a report or presentation.
 
 ## Limitations and Future Work
 
