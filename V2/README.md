@@ -488,7 +488,6 @@ The following files are the easiest places to start when reviewing the main V2 r
 The plots in V2 are intentionally styled to look like part of a coherent research workflow rather than default library output.
 
 - I use a custom palette so benchmark families are visually distinct and easier to track across figures.
-- I avoid default-looking classroom plots because presentation quality affects whether the analysis feels deliberate.
 - The styling is meant to support interpretation, not distract from it: readable labels, consistent colors, and figures that can be discussed in a report or presentation.
 
 ## Limitations and Future Work
