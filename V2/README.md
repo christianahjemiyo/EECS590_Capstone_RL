@@ -24,6 +24,10 @@ Relative to the initial scaffold, V2 adds:
 - `V2/checkpoints/`: saved model checkpoints for selected runs.
 - `V2/replay_buffers/`: storage layout and notes for replay-style/offline experiments.
 
+For navigation help inside this subtree, see:
+- `V2/scripts/README.md`
+- `V2/docs/version-log.md`
+
 ## Core Workflow
 Run from the repository root:
 
@@ -71,6 +75,13 @@ python scripts/make_figures.py --mdp outputs/V2/mdp/mdp.npz --data data/processe
 python scripts/run_reward_sweep.py --base-config V2/configs/mdp_sim_mimic.json --outdir outputs/V2/reward_sweep
 ```
 
+### 8. Build an MDP with learned embedding states
+The default V2 config still uses the compact hand-built risk-state representation. If you want to test the tokenizer-style representation prototype, add a `representation` block with `mode: "tokenizer_embedding"` to the MDP config and rebuild:
+
+```powershell
+python scripts/build_mdp.py --config <tokenizer-config.json> --outdir outputs/V2/mdp_tokenizer
+```
+
 ## How To Read The Results
 Important interpretation rules:
 - Higher return is better.
@@ -95,12 +106,30 @@ V2 is meant to be defensible, not overclaimed.
 - The core environment is still a modeled clinical MDP rather than a full causal clinical simulator.
 - Some advanced methods are included as adaptation studies and coverage exercises, not because they are the most natural method for a small discrete MDP.
 - Offline RL is present, but the logged data is still simplified compared with true longitudinal treatment logs.
-- Representation learning is still limited; the current state abstraction remains largely hand-constructed.
+- Representation learning now includes a lightweight tokenizer/embedding prototype, but the main benchmark still relies on the simpler hand-constructed state abstraction.
 - Reward design remains one of the most important open modeling choices in the project.
 
 ## Immediate Next Directions
 The most useful next improvements are:
 - systematic reward tuning or search over reward/cost weights,
 - richer offline RL experiments,
-- learned state embeddings/tokenization instead of only manual discretization,
+- stronger learned state embeddings beyond the current lightweight tokenizer prototype,
 - stronger experiment logging around failures, ablations, and debugging.
+
+## Versioning Notes
+V2 remains a named subtree because it is the main benchmark workflow developed after the initial scaffold, but versioning is documented rather than multiplied into new top-level project trees.
+
+- The repository root is the primary entry point.
+- Root-level wrapper scripts such as `scripts/run_benchmark.py` and `scripts/run_reward_sweep.py` reduce the need to navigate directly into `V2/scripts/`.
+- Additional workflow history is recorded in `V2/docs/version-log.md`.
+
+## Citations and Acknowledgments
+Key references used directly in the V2 workflow:
+
+- Johnson, A. E. W., Pollard, T. J., Shen, L., et al. "MIMIC-IV, a freely accessible electronic health record dataset." Scientific Data, 2023.
+- Sutton, R. S., and Barto, A. G. Reinforcement Learning: An Introduction. Second edition.
+- Strack, B., DeShazo, J. P., Gennings, C., Olmo, J. L., Ventura, S., Cios, K. J., and Clore, J. N. "Impact of HbA1c Measurement on Hospital Readmission Rates: Analysis of 70,000 Clinical Database Patient Records." 2014.
+
+Acknowledgments:
+- Author: Christianah Jemiyo.
+- AI assistant support was used for code organization, documentation cleanup, and implementation assistance; final modeling decisions and project claims were reviewed and curated by the author.

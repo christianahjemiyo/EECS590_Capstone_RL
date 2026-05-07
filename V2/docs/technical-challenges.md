@@ -84,11 +84,11 @@ Policy ranking is sensitive to the reward map and intervention-cost assumptions.
 - Reward sensitivity emerged as a meaningful result instead of a silent bug.
 
 ### What did not fully work
-- Reward calibration is still mostly manual.
-- The repository does not yet include a systematic search or tuning study over reward and cost settings.
+- Reward calibration is still only lightly explored.
+- The new reward sweep is useful, but it is still a compact search rather than a fully principled hyperparameter-optimization study.
 
 ### Next step
-Treat reward design as a hyperparameter search problem and run controlled sweeps across algorithms, ideally with a small multi-seed study.
+Expand the current reward sweep into a broader multi-seed calibration study and connect the search space more directly to domain-motivated care tradeoffs.
 
 ## 5. Offline RL is important but still simplified
 
@@ -140,17 +140,20 @@ The current state abstraction is mostly hand-constructed and discretized. That k
 ### What I tried
 - Started with a compact risk-state representation to make the RL problem tractable.
 - Kept the abstraction explicit so assumptions were auditable.
+- Added a lightweight tokenizer/embedding prototype so categorical and discretized numeric clinical inputs can map into a learned continuous representation before state binning.
 
 ### What worked
 - The resulting environment is stable and easy to benchmark.
 - It allowed the capstone to cover the full RL pipeline without waiting for a more complex representation-learning subsystem.
+- The tokenizer-style prototype now gives the project a concrete bridge from manual discretization toward learned state representations.
 
 ### What did not fully work
 - Manual discretization can blur clinically meaningful distinctions.
-- It may also make some advanced methods look less useful than they would be with richer learned features.
+- The current tokenizer/embedding path is still lightweight and experimental, not yet the main benchmark representation.
+- Some advanced methods may still look less useful than they would with a richer learned state space.
 
 ### Next step
-Explore learned embeddings or tokenizer-style representation learning so discrete clinical inputs can map into continuous representations before RL optimization.
+Decide whether the tokenizer path should become an ablation branch of the main benchmark, and if so, compare it directly against the current hand-built state abstraction.
 
 ## 8. What remains most confusing to me
 
