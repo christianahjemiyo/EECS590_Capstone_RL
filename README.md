@@ -1,178 +1,129 @@
 # EECS590 Capstone -- Reinforcement Learning for Hospital Readmission Planning
 
-## Project Overview
-This capstone investigates how reinforcement learning (RL) can model and optimize sequential clinical decisions that influence hospital readmissions. The goal is to design agents that learn intervention strategies to reduce avoidable 30-day readmissions while supporting long-term patient recovery.
+## Overview
+This repository studies how reinforcement learning can support sequential clinical intervention planning for hospital readmission risk. The project asks whether an RL policy can improve long-term recovery outcomes and reduce modeled 30-day readmissions relative to simple baseline strategies.
 
-Version 1 establishes a clean, reproducible foundation: a data-driven environment scaffold, baseline policies, and evaluation tooling.
+The repository now has one primary story:
+- `V2/` is the main experimental workflow and the version to review first.
+- The root package under `src/eecs590_capstone/` contains the reusable environments, agents, CLIs, and utilities used by both the original scaffold and the expanded benchmark.
+- `scripts/` contains dataset/MDP utilities, plotting, and orchestration scripts that sit on top of the reusable package code.
 
 ## Research Question
-Can an RL agent learn a sequential discharge and follow-up policy that reduces 30-day readmissions compared to baseline strategies while maintaining or improving long-term recovery outcomes?
+Can an RL agent learn a sequential discharge and follow-up policy that reduces 30-day readmissions compared with baseline strategies while maintaining or improving long-term recovery outcomes?
 
-## Problem Statement
-Hospital discharge planning is a sequence of interdependent decisions (discharge timing, medication reconciliation, follow-up intensity, rehab referrals, patient education). These choices interact over time and affect readmission risk. Traditional models describe risk factors but do not optimize sequential strategies. RL enables learning policies that optimize long-horizon outcomes under uncertainty.
+## Problem Setting
+Hospital discharge planning is a sequence of interdependent decisions such as follow-up intensity, rehab referral, early intervention, and monitoring level. These decisions interact over time and affect readmission risk. Standard predictive models estimate risk, but they do not optimize a sequence of actions. RL is used here as a sequential decision framework for that optimization problem.
 
-## MDP Formulation (Assumptions)
-- States: abstracted patient recovery/risk stages after discharge (e.g., stable, improving, high-risk deterioration).
-- Actions: intervention strategies (e.g., conservative monitoring, intensified follow-up, rehab escalation, early clinical intervention).
-- Transitions: stochastic evolution of recovery given intervention choice.
-- Rewards: positive for sustained recovery, large penalty for readmission, and step costs for inefficient or overly aggressive care.
-- Terminals: successful recovery or readmission events.
+## Current Project Status
+The repository started with a compact data-driven scaffold built from the Diabetes 130-US Hospitals dataset. The main capstone workflow is now the V2 benchmark, which uses a shared clinical MDP, compares multiple RL families under the same reward design, and includes offline RL evaluation and interpretation outputs.
 
-Version 1 uses a data-driven environment scaffold to validate learning and evaluation pipelines before integrating action-aware models.
+If you are reviewing the project for the first time, start with:
+1. `V2/README.md`
+2. `outputs/V2/benchmark/summary_metrics.csv`
+3. `outputs/V2/all_algorithms/summary_metrics.csv`
+4. `V2/docs/technical-challenges.md`
 
-## Foundational Environment (Primary)
-A data-driven environment scaffold is included to plug into the Kaggle dataset.
-- Implemented in `src/eecs590_capstone/envs/data_env.py`.
-- Loads the processed dataset and provides a `reset()` / `step()` interface.
-- Uses proxy transitions because actions are not recorded in the dataset.
-- Provides a reward shaping baseline for readmission outcomes.
+## Versioning Notes
+Versioning is documented here rather than spread across multiple top-level project names.
 
-
-## Dataset (Kaggle)
-Selected dataset: **Diabetes 130-US Hospitals for Years 1999-2008** (readmission label includes `<30`, `>30`, `NO`).
-
-Kaggle dataset page (login may be required):
-```text
-https://www.kaggle.com/datasets/ashikuzzamanshishir/diabetes-130-us-hospitals-for-years-1999-2008
-```
-Primary source (UCI):
-```text
-https://archive.ics.uci.edu/dataset/296/diabetic_readmission
-```
-
-Planned pipeline:
-- Raw ingest into `data/raw/`
-- Cleaning + feature engineering into `data/processed/`
-- Train/validation/test splits
-- Conversion to trajectories or transition estimates for RL experiments
-
-Data setup instructions:
-- `data/README.md`
-Data-driven config:
-- `configs/data_env.json`
-MDP simulator config:
-- `configs/mdp_sim.json`
-State/action mapping:
-- `docs/state_action_mapping.md`
-
-## Evaluation Metrics and Baselines
-Metrics (current + future):
-- Average return
-- Terminal recovery rate
-- Readmission rate (once mapped from dataset)
-- Intervention cost
-- Time-to-recovery
-
-Baselines:
-- Random policy
-- Conservative policy (low-intervention)
-- Aggressive policy (high-intervention)
-- Risk-score threshold rule (data-driven baseline)
-
-## Scope and Milestones
-- Phase 1 (complete): data-driven env scaffold, baseline policies, evaluation CLI, dataset pipeline.
-- Phase 2: integrate Kaggle dataset; define state/action mappings; generate trajectories or transition models.
-- Phase 3: introduce model-free RL (MC, TD, SARSA, Q-learning).
-- Phase 4: function approximation and richer state representations.
+- V1: initial reproducible scaffold using a data-driven environment, baseline policies, and tabular/DP training utilities.
+- V2: the main capstone workflow. Adds MIMIC-oriented preprocessing, broader algorithm coverage, multi-seed benchmarking, offline RL comparisons, saliency, checkpoint handling, and interpretation outputs.
+- Future updates should extend the existing workflow and documentation rather than create a separate top-level `V3` tree unless the project scope fundamentally changes.
 
 ## Repository Structure
-- `src/`: RL code (envs, agents, MDP definitions, CLI).
-- `outputs/`: trained policies, value functions, metrics, plots.
-- `scripts/`: utilities (e.g., visualization).
-- `tests/`: reserved for validation tests.
-- `requirements.txt`: dependencies.
+- `src/eecs590_capstone/`: reusable package code.
+  Includes environments, agents, MDP definitions, command-line entrypoints, and shared utilities.
+- `scripts/`: top-level utilities and orchestration.
+  Includes preprocessing, MDP construction, visualization, evaluation, and end-to-end runners.
+- `V2/`: expanded benchmark workflow.
+  Includes V2-specific configs, experiment scripts, documentation, architectures, checkpoints, and replay-buffer support.
+- `data/`: raw and processed datasets used by the scaffold and benchmark.
+- `outputs/`: committed experiment outputs, metrics, figures, and interpretation files.
+- `tests/`: unit tests for core components.
 
-## How to Run
-Activate the virtual environment and set the Python path:
+## Data and MDP Formulation
+The project uses clinical readmission data to define a sequential decision problem.
+
+- States: abstracted patient risk or recovery groups.
+- Actions: intervention intensity or care-management strategy.
+- Transitions: stochastic patient progression under the chosen action.
+- Rewards: tradeoff between recovery benefit, readmission avoidance, and intervention cost.
+- Terminals: readmission or successful recovery.
+
+The original scaffold uses proxy transitions because explicit intervention actions are not recorded in the source dataset. V2 keeps this limitation visible and treats reward design and representation quality as central modeling choices rather than hidden assumptions.
+
+## Main Workflow
+Set the Python path from the repo root:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
 $env:PYTHONPATH="src"
 ```
 
-Data-driven baseline policy (no learning, config-based):
+Core benchmark:
+
 ```powershell
-python -m eecs590_capstone.cli.data_train --policy random
-python -m eecs590_capstone.cli.data_eval --policy-path outputs/data_train/policy.json
+python scripts/run_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/benchmark --seeds 5
 ```
 
-Evaluate all baselines:
+Offline RL comparison:
+
 ```powershell
-python scripts/eval_baselines.py
+python scripts/run_offline_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/offline
 ```
 
-Build the MDP simulator from data:
+All-algorithm comparison:
+
 ```powershell
-python scripts/build_mdp.py
+python V2/scripts/run_v2_all_algorithms.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/all_algorithms --seeds 7,11,19
 ```
 
-Run DP on the simulated MDP:
+Generate the major V2 figures and interpretation outputs:
+
 ```powershell
-python -m eecs590_capstone.cli.mdp_train --algo policy_iter
-python -m eecs590_capstone.cli.mdp_train --algo value_iter
+python scripts/make_figures.py --mdp outputs/V2/mdp/mdp.npz --data data/processed/train.csv
 ```
 
-Plot DP results (bars + heatmaps + human-readable policy):
+Reward tuning sweep:
+
 ```powershell
-python scripts/plot_mdp_results.py --algo policy_iter
-python scripts/plot_mdp_results.py --algo value_iter
+python scripts/run_reward_sweep.py --base-config V2/configs/mdp_sim_mimic.json --outdir outputs/V2/reward_sweep
 ```
 
-Render an HTML animation (open in a browser):
-```powershell
-python scripts/render_mdp_html.py --policy outputs/mdp/policy_iter_policy.json
-```
+For the full operational runbook, see `V2/README.md`.
 
-Train tabular RL algorithms on the simulated MDP:
-```powershell
-python -m eecs590_capstone.cli.rl_train --algo mc
-python -m eecs590_capstone.cli.rl_train --algo td0
-python -m eecs590_capstone.cli.rl_train --algo td_n --n 3
-python -m eecs590_capstone.cli.rl_train --algo td_lambda --lambda 0.8
-python -m eecs590_capstone.cli.rl_train --algo sarsa
-python -m eecs590_capstone.cli.rl_train --algo sarsa_n --n 3
-python -m eecs590_capstone.cli.rl_train --algo sarsa_lambda --lambda 0.8
-python -m eecs590_capstone.cli.rl_train --algo q_learning
-```
+## Key Outputs
+- `outputs/V2/benchmark/`: multi-seed benchmark across DP, online RL, and offline RL.
+- `outputs/V2/all_algorithms/`: single-table comparison across the broad implemented algorithm set.
+- `outputs/V2/offline/`: offline RL outputs including FQI/CQL-style comparisons.
+- `outputs/V2/figures/`: saliency, reward-cost, family-overview, and policy-flow visualizations.
 
-Run all RL algorithms and compare curves:
-```powershell
-python scripts/run_all_rl.py --runs 5
-python scripts/plot_learning_curves.py
-```
+## Technical Notes
+A few points matter for interpreting the results correctly:
+- The environment is still a compact tabular clinical MDP, so exact and tabular methods have a structural advantage.
+- Offline RL is included because the project is fundamentally motivated by logged healthcare data rather than unconstrained online interaction.
+- Reward design materially changes rankings, so rewards should be treated as a tunable modeling choice rather than a fixed truth.
+- Some advanced methods are intentionally included as adaptation studies to test algorithm-environment fit, not because they are always the most natural method for this MDP.
 
-Run everything end-to-end:
-```powershell
-python scripts/run_everything.py
-```
+## Planned Next Improvements
+- Reward calibration as a hyperparameter search problem.
+- Stronger offline RL experiments on richer logged trajectories.
+- Representation learning or learned embeddings/tokenization for richer state abstractions.
+- Better documentation of failed experiments, ablations, and debugging decisions.
+- External validation on a second cohort or dataset split.
 
-V2 (MIMIC + benchmark + saliency):
-```powershell
-python V2/scripts/run_v2_benchmark.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/benchmark --seeds 5
-python V2/scripts/plot_v2_saliency.py --data data/processed/train.csv --outdir outputs/V2/figures
-python V2/scripts/run_v2_tabular_suite.py --mdp outputs/V2/mdp/mdp.npz --outdir outputs/V2/tabular_suite --seeds 7,11,19,23,29
-```
-See the full V2 runbook in `V2/README.md`.
+## Citations
+Primary datasets and references used in the project:
 
-Run unit tests:
-```powershell
-python -m pytest -q
-```
+- Strack, B., DeShazo, J. P., Gennings, C., Olmo, J. L., Ventura, S., Cios, K. J., and Clore, J. N. "Impact of HbA1c Measurement on Hospital Readmission Rates: Analysis of 70,000 Clinical Database Patient Records." 2014.
+  UCI dataset page: https://archive.ics.uci.edu/dataset/296/diabetic_readmission
+- Diabetes 130-US Hospitals for Years 1999-2008.
+  Kaggle mirror used for project setup: https://www.kaggle.com/datasets/ashikuzzamanshishir/diabetes-130-us-hospitals-for-years-1999-2008
+- Johnson, A. E. W., Pollard, T. J., Shen, L., et al. "MIMIC-IV, a freely accessible electronic health record dataset." Scientific Data, 2023.
+  Project workflow references MIMIC-based preprocessing in V2.
+- Sutton, R. S., and Barto, A. G. Reinforcement Learning: An Introduction. Second edition.
+  Used as the main RL reference for algorithm families implemented in the repository.
 
-## Version 1 Outputs
-- Policy kernel
-- Value function estimates
-- Training metadata
-- Evaluation metrics
-- Policy visualization plots
-
-## Future Work
-- DQN and other function-approximation methods
-- More realistic transition modeling (causal or learned dynamics)
-- Richer state representations and clinical feature grouping
-- Offline policy evaluation and safety constraints
-
-## Author
-Christianah Jemiyo  
-PhD Student, Artificial Intelligence  
-University of North Dakota
+## Acknowledgments
+- Author: Christianah Jemiyo, PhD Student in Artificial Intelligence, University of North Dakota.
+- AI tooling: documentation drafting, code cleanup, and repository organization benefited from AI assistant support during development; all final project decisions, code review, and written claims were checked and curated by the author.
+- Human collaboration: no external code collaborators are currently listed in the repository. If future collaborators contribute materially, they should be acknowledged here and, where appropriate, added through GitHub collaboration history.

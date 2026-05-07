@@ -15,6 +15,7 @@ from typing import Dict, Tuple
 import numpy as np
 import pandas as pd
 
+from eecs590_capstone.utils.representation import build_tokenizer_states, representation_meta
 from eecs590_capstone.utils.io import load_json, save_json
 
 
@@ -125,18 +126,35 @@ def reward_by_state(df: pd.DataFrame, state_col: str, reward_map: Dict[str, floa
     return rewards
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Build a tabular MDP simulator from the dataset.")
-    parser.add_argument("--config", default="configs/mdp_sim.json")
-    parser.add_argument("--outdir", default="outputs/mdp")
-    args = parser.parse_args()
+def assign_states(df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dict]:
+    df = df.copy()
+    rep_cfg = cfg.get("representation", {"mode": "risk_score"})
+    mode = rep_cfg.get("mode", "risk_score")
+    label_col = cfg.get("label_col", "readmitted")
 
-    cfg = load_json(Path(args.config))
-    df = pd.read_csv(cfg["data_path"], low_memory=False)
-    df = df.replace("?", np.nan)
+    if mode == "tokenizer_embedding":
+        artifacts = build_tokenizer_states(
+            df,
+            label_col=label_col,
+            n_states=int(rep_cfg.get("n_states", 4)),
+            embedding_dim=int(rep_cfg.get("embedding_dim", 8)),
+            numeric_bins=int(rep_cfg.get("numeric_bins", 5)),
+            epochs=int(rep_cfg.get("epochs", 60)),
+            lr=float(rep_cfg.get("lr", 0.03)),
+            seed=int(rep_cfg.get("seed", 7)),
+        )
+        df["risk_state"] = artifacts.states.astype(int)
+        return df, representation_meta(artifacts)
 
     score = compute_risk_score(df)
     df["risk_state"] = bin_risk(score, cfg["risk_bins"]).astype(int)
+    return df, {"mode": "risk_score", "risk_bins": cfg["risk_bins"]}
+
+
+def build_mdp_artifacts(cfg: dict) -> tuple[np.ndarray, np.ndarray, dict]:
+    df = pd.read_csv(cfg["data_path"], low_memory=False)
+    df = df.replace("?", np.nan)
+    df, rep_meta = assign_states(df, cfg)
 
     counts, n_states = build_transition_counts(df, "risk_state")
     P_base = build_base_transition(counts, cfg.get("laplace", 1.0))
@@ -149,20 +167,32 @@ def main() -> int:
         for s in range(n_states):
             R[s, a, :] = r_state[s] - float(cfg["action_costs"][a])
 
+    meta = {
+        "n_states": n_states,
+        "n_actions": n_actions,
+        "action_strengths": cfg["action_strengths"],
+        "action_costs": cfg["action_costs"],
+        "reward_map": cfg["reward_map"],
+        "representation": rep_meta,
+    }
+    if "risk_bins" in cfg:
+        meta["risk_bins"] = cfg["risk_bins"]
+    return P, R, meta
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Build a tabular MDP simulator from the dataset.")
+    parser.add_argument("--config", default="configs/mdp_sim.json")
+    parser.add_argument("--outdir", default="outputs/mdp")
+    args = parser.parse_args()
+
+    cfg = load_json(Path(args.config))
+    P, R, meta = build_mdp_artifacts(cfg)
+
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     np.savez(outdir / "mdp.npz", P=P, R=R)
-    save_json(
-        outdir / "mdp_meta.json",
-        {
-            "n_states": n_states,
-            "n_actions": n_actions,
-            "risk_bins": cfg["risk_bins"],
-            "action_strengths": cfg["action_strengths"],
-            "action_costs": cfg["action_costs"],
-            "reward_map": cfg["reward_map"],
-        },
-    )
+    save_json(outdir / "mdp_meta.json", meta)
 
     print(f"Wrote: {outdir / 'mdp.npz'}")
     print(f"Wrote: {outdir / 'mdp_meta.json'}")

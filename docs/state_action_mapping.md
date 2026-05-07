@@ -52,3 +52,4 @@ Action cost (per step):
 - Replace factorized encoding with explicit clinical grouping.
 - Learn or estimate transitions from longitudinal data if available.
 - Calibrate rewards using health economics or length-of-stay proxies.
+- Experiment with tokenizer-style learned embeddings so discrete clinical values can map into continuous state representations before binning into RL states.
