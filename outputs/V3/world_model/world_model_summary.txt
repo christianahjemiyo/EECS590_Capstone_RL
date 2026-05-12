@@ -4,10 +4,11 @@ MDP source: C:\Users\Christianah\GIT\EECS590_Capstone_RL\outputs\v2_outputs\mdp\
 Output directory: C:\Users\Christianah\GIT\EECS590_Capstone_RL\outputs\V3\world_model
 
 Main fit metrics against the original tabular MDP:
-- Mean transition MAE: 0.000000
-- Mean transition MSE: 0.000000
-- Reward MAE: 0.000000
-- Mean transition KL divergence: -0.000000
+- Mean transition MAE: 0.026015
+- Mean transition MSE: 0.003568
+- Reward MAE: 0.086098
+- Mean policy return gap (true vs learned): 0.565380
+- Mean transition KL divergence: 0.029167
 
 Included policies:
 - aggressive_policy

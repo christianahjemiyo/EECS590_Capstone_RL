@@ -25,7 +25,7 @@ I chose this question because it directly addresses the main unresolved issue fr
 For Version 3, I implemented a lightweight world-model extension that fits the current structure of the capstone rather than replacing it.
 
 The implementation includes:
-- a tabular world model that learns or reconstructs transition probabilities and expected rewards,
+- a tabular world model that learns transition probabilities and expected rewards from sampled trajectories,
 - a simulator wrapper around that world model,
 - policy evaluation inside the learned simulator,
 - error metrics comparing learned dynamics against the original tabular MDP,

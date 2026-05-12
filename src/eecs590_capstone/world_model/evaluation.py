@@ -101,6 +101,7 @@ def evaluate_policy_in_world_model(
         max_steps=max_steps,
         start_state=start_state,
     )
+    terminal_lookup = set(world_model.terminal_states)
 
     returns: list[float] = []
     lengths: list[int] = []
@@ -109,10 +110,78 @@ def evaluate_policy_in_world_model(
     for _ in range(int(episodes)):
         trajectory = simulator.simulate_trajectory(policy, start_state=start_state, max_steps=max_steps)
         total_reward = float(sum(float(step["reward"]) for step in trajectory))
-        done = bool(trajectory[-1]["done"]) if trajectory else False
+        if trajectory:
+            final_step = trajectory[-1]
+            terminal_hit = bool(final_step["next_state"] in terminal_lookup)
+        else:
+            terminal_hit = False
         returns.append(total_reward)
         lengths.append(len(trajectory))
-        if done:
+        if terminal_hit:
+            terminal_hits += 1
+
+    arr = np.array(returns, dtype=float)
+    len_arr = np.array(lengths, dtype=float) if lengths else np.array([0.0], dtype=float)
+    return {
+        "episodes": float(episodes),
+        "avg_return": float(arr.mean()) if len(arr) else 0.0,
+        "std_return": float(arr.std()) if len(arr) else 0.0,
+        "avg_length": float(len_arr.mean()),
+        "terminal_rate": float(terminal_hits / episodes) if episodes else 0.0,
+    }
+
+
+def evaluate_policy_in_mdp(
+    policy: Mapping[str, int] | Mapping[int, int],
+    *,
+    mdp_path: str | Path | None = None,
+    P: np.ndarray | None = None,
+    R: np.ndarray | None = None,
+    terminal_states: list[int] | None = None,
+    episodes: int = 200,
+    seed: int = 7,
+    max_steps: int = 30,
+    start_state: int | None = None,
+) -> dict[str, float]:
+    """Evaluate a fixed policy in the original tabular MDP.
+
+    This creates the direct baseline needed to judge whether the learned world
+    model is accurate enough for offline policy evaluation.
+    """
+
+    true_P, true_R = _load_mdp_arrays(mdp_path, P=P, R=R)
+    n_states = int(true_P.shape[0])
+    rng = np.random.default_rng(seed)
+    terminal_lookup = set(terminal_states or [])
+
+    returns: list[float] = []
+    lengths: list[int] = []
+    terminal_hits = 0
+
+    for _ in range(int(episodes)):
+        if start_state is None:
+            candidates = [s for s in range(n_states) if s not in terminal_lookup] or list(range(n_states))
+            state = int(rng.choice(candidates))
+        else:
+            state = int(start_state)
+
+        total_reward = 0.0
+        done = False
+        steps = 0
+
+        while steps < max_steps and not done:
+            action = int(policy.get(str(state), policy.get(state, 0)))  # type: ignore[arg-type]
+            probs = true_P[state, action, :]
+            next_state = int(rng.choice(n_states, p=probs))
+            reward = float(true_R[state, action, next_state]) if true_R.ndim == 3 else float(true_R[state, action])
+            total_reward += reward
+            steps += 1
+            done = next_state in terminal_lookup or steps >= max_steps
+            state = next_state
+
+        returns.append(total_reward)
+        lengths.append(steps)
+        if done and state in terminal_lookup:
             terminal_hits += 1
 
     arr = np.array(returns, dtype=float)

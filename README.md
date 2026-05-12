@@ -18,7 +18,7 @@ The main Version 3 research question is:
 
 **Can a learned world model approximate patient recovery and readmission dynamics well enough to support safer offline evaluation of discharge and follow-up policies?**
 
-The world model learns estimated transition and reward behavior from the existing MDP structure, then simulates patient trajectories under different policies. This does not make the project clinically deployable. Instead, it provides a transparent decision-support simulation for studying how policies may behave before any real-world use.
+The world model learns estimated transition and reward behavior from trajectory data sampled out of the existing tabular MDP, then simulates patient trajectories under different policies. This does not make the project clinically deployable. Instead, it provides a transparent decision-support simulation for studying how policies may behave before any real-world use.
 
 ### Why world models?
 World models fit this project because the core challenge is not simply choosing another RL algorithm. The main challenge is understanding how patient states may evolve under different discharge or follow-up strategies. A learned simulator directly addresses this gap by making the transition assumptions visible, testable, and reusable.

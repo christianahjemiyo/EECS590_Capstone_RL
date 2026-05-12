@@ -20,6 +20,7 @@ from eecs590_capstone.world_model import (
     TabularWorldModel,
     WorldModelSimulator,
     compare_world_model_to_mdp,
+    evaluate_policy_in_mdp,
     evaluate_policy_in_world_model,
     save_metrics_csv,
 )
@@ -199,6 +200,73 @@ def collect_trajectory_examples(
     return pd.DataFrame(rows)
 
 
+def collect_training_trajectories_from_mdp(
+    P: np.ndarray,
+    R: np.ndarray,
+    policies: Mapping[str, Mapping[str, int]],
+    *,
+    n_trajectories: int,
+    horizon: int,
+    seed: int,
+    terminal_states: list[int],
+) -> tuple[list[dict[str, float | int | bool]], pd.DataFrame]:
+    """Sample logged transitions from the original MDP for world-model fitting.
+
+    This makes the Version 3 workflow meaningfully different from direct MDP
+    reconstruction. The learned model must now recover dynamics from finite
+    experience rather than from the full transition table itself.
+    """
+
+    rng = np.random.default_rng(seed)
+    n_states = int(P.shape[0])
+    policy_items = list(policies.items())
+    terminal_lookup = set(terminal_states)
+    transitions: list[dict[str, float | int | bool]] = []
+    episode_rows: list[dict[str, float | int | str]] = []
+
+    for episode_idx in range(int(n_trajectories)):
+        policy_name, policy = policy_items[episode_idx % len(policy_items)]
+        start_candidates = [s for s in range(n_states) if s not in terminal_lookup] or list(range(n_states))
+        state = int(rng.choice(start_candidates))
+        total_reward = 0.0
+        steps = 0
+
+        while steps < horizon:
+            action = int(policy.get(str(state), policy.get(state, 0)))  # type: ignore[arg-type]
+            probs = P[state, action, :]
+            next_state = int(rng.choice(n_states, p=probs))
+            reward = float(R[state, action, next_state]) if R.ndim == 3 else float(R[state, action])
+            terminal_hit = next_state in terminal_lookup
+            transitions.append(
+                {
+                    "episode": episode_idx,
+                    "policy_name": policy_name,
+                    "state": state,
+                    "action": action,
+                    "next_state": next_state,
+                    "reward": reward,
+                    "done": terminal_hit,
+                }
+            )
+            total_reward += reward
+            steps += 1
+            state = next_state
+            if terminal_hit:
+                break
+
+        episode_rows.append(
+            {
+                "episode": episode_idx,
+                "behavior_policy": policy_name,
+                "trajectory_return": total_reward,
+                "trajectory_length": steps,
+                "ended_in_terminal_state": int(state in terminal_lookup),
+            }
+        )
+
+    return transitions, pd.DataFrame(episode_rows)
+
+
 def write_policy_eval_csv(
     metrics_by_policy: Mapping[str, Mapping[str, float]],
     path: Path,
@@ -208,6 +276,32 @@ def write_policy_eval_csv(
         row = {"policy_name": policy_name}
         row.update(metrics)
         rows.append(row)
+    pd.DataFrame(rows).to_csv(path, index=False)
+
+
+def write_policy_comparison_csv(
+    path: Path,
+    *,
+    true_metrics_by_policy: Mapping[str, Mapping[str, float]],
+    world_metrics_by_policy: Mapping[str, Mapping[str, float]],
+) -> None:
+    rows: list[dict[str, float | str]] = []
+    for policy_name in true_metrics_by_policy:
+        true_metrics = true_metrics_by_policy[policy_name]
+        wm_metrics = world_metrics_by_policy[policy_name]
+        rows.append(
+            {
+                "policy_name": policy_name,
+                "true_avg_return": float(true_metrics["avg_return"]),
+                "world_model_avg_return": float(wm_metrics["avg_return"]),
+                "absolute_return_gap": abs(float(true_metrics["avg_return"]) - float(wm_metrics["avg_return"])),
+                "true_terminal_rate": float(true_metrics["terminal_rate"]),
+                "world_model_terminal_rate": float(wm_metrics["terminal_rate"]),
+                "absolute_terminal_gap": abs(
+                    float(true_metrics["terminal_rate"]) - float(wm_metrics["terminal_rate"])
+                ),
+            }
+        )
     pd.DataFrame(rows).to_csv(path, index=False)
 
 
@@ -221,6 +315,7 @@ def write_summary(
     mean_reward_mae: float,
     mean_transition_kl: float | None,
     loaded_policy_names: list[str],
+    mean_policy_return_gap: float,
     notes: list[str],
 ) -> None:
     lines = [
@@ -233,6 +328,7 @@ def write_summary(
         f"- Mean transition MAE: {mean_transition_mae:.6f}",
         f"- Mean transition MSE: {mean_transition_mse:.6f}",
         f"- Reward MAE: {mean_reward_mae:.6f}",
+        f"- Mean policy return gap (true vs learned): {mean_policy_return_gap:.6f}",
     ]
     if mean_transition_kl is not None:
         lines.append(f"- Mean transition KL divergence: {mean_transition_kl:.6f}")
@@ -266,9 +362,30 @@ def main() -> int:
     P = data["P"]
     R = data["R"]
     terminal_states = infer_terminal_states(P)
+    n_states = int(P.shape[0])
+    n_actions = int(P.shape[1])
 
-    world_model = TabularWorldModel(smoothing=1.0).fit_from_mdp(
-        mdp_path=mdp_path,
+    fixed_policies = build_fixed_policies(n_states, n_actions, rng)
+    saved_policies, notes = maybe_load_saved_policies()
+    all_policies: dict[str, dict[str, int]] = {}
+    all_policies.update(fixed_policies)
+    all_policies.update(saved_policies)
+
+    training_transitions, training_episode_df = collect_training_trajectories_from_mdp(
+        P,
+        R,
+        all_policies,
+        n_trajectories=args.n_trajectories,
+        horizon=args.horizon,
+        seed=args.seed,
+        terminal_states=terminal_states,
+    )
+    training_episode_df.to_csv(outdir / "training_trajectory_stats.csv", index=False)
+
+    world_model = TabularWorldModel(smoothing=1.0).fit_from_trajectories(
+        training_transitions,
+        n_states=n_states,
+        n_actions=n_actions,
         terminal_states=terminal_states,
     )
     world_model.save(outdir / "tabular_world_model.npz")
@@ -276,15 +393,18 @@ def main() -> int:
     metrics_df = compare_world_model_to_mdp(world_model, mdp_path=mdp_path)
     save_metrics_csv(metrics_df, outdir / "world_model_metrics.csv")
 
-    fixed_policies = build_fixed_policies(world_model.n_states, world_model.n_actions, rng)
-    saved_policies, notes = maybe_load_saved_policies()
-    all_policies: dict[str, dict[str, int]] = {}
-    all_policies.update(fixed_policies)
-    all_policies.update(saved_policies)
-
-    policy_metrics: dict[str, dict[str, float]] = {}
+    true_policy_metrics: dict[str, dict[str, float]] = {}
+    world_policy_metrics: dict[str, dict[str, float]] = {}
     for policy_name, policy in all_policies.items():
-        policy_metrics[policy_name] = evaluate_policy_in_world_model(
+        true_policy_metrics[policy_name] = evaluate_policy_in_mdp(
+            policy,
+            mdp_path=mdp_path,
+            terminal_states=terminal_states,
+            episodes=args.n_trajectories,
+            seed=args.seed,
+            max_steps=args.horizon,
+        )
+        world_policy_metrics[policy_name] = evaluate_policy_in_world_model(
             world_model,
             policy,
             episodes=args.n_trajectories,
@@ -292,7 +412,13 @@ def main() -> int:
             max_steps=args.horizon,
         )
 
-    write_policy_eval_csv(policy_metrics, outdir / "policy_eval_world_model.csv")
+    write_policy_eval_csv(world_policy_metrics, outdir / "policy_eval_world_model.csv")
+    write_policy_eval_csv(true_policy_metrics, outdir / "policy_eval_true_mdp.csv")
+    write_policy_comparison_csv(
+        outdir / "policy_eval_comparison.csv",
+        true_metrics_by_policy=true_policy_metrics,
+        world_metrics_by_policy=world_policy_metrics,
+    )
 
     trajectory_examples = collect_trajectory_examples(
         world_model,
@@ -306,10 +432,16 @@ def main() -> int:
     fit_summary = {
         "mdp_path": str(mdp_path),
         "terminal_states": terminal_states,
+        "fit_source": world_model.fit_source,
+        "n_training_trajectories": int(args.n_trajectories),
+        "n_training_transitions": int(len(training_transitions)),
         "mean_transition_mae": float(metrics_df["transition_mae"].mean()),
         "mean_transition_mse": float(metrics_df["transition_mse"].mean()),
         "mean_reward_mae": float(metrics_df["reward_mae"].mean()),
         "mean_transition_kl": float(metrics_df["transition_kl"].mean()) if "transition_kl" in metrics_df else None,
+        "mean_policy_return_gap": float(
+            pd.read_csv(outdir / "policy_eval_comparison.csv")["absolute_return_gap"].mean()
+        ),
         "n_policies_evaluated": len(all_policies),
         "policies": sorted(all_policies.keys()),
     }
@@ -328,6 +460,7 @@ def main() -> int:
         mean_reward_mae=fit_summary["mean_reward_mae"],
         mean_transition_kl=fit_summary["mean_transition_kl"],
         loaded_policy_names=sorted(all_policies.keys()),
+        mean_policy_return_gap=fit_summary["mean_policy_return_gap"],
         notes=notes,
     )
 
@@ -337,6 +470,7 @@ def main() -> int:
     print(f"  Mean transition MAE: {fit_summary['mean_transition_mae']:.6f}")
     print(f"  Mean transition MSE: {fit_summary['mean_transition_mse']:.6f}")
     print(f"  Reward MAE: {fit_summary['mean_reward_mae']:.6f}")
+    print(f"  Mean policy return gap: {fit_summary['mean_policy_return_gap']:.6f}")
     if fit_summary["mean_transition_kl"] is not None:
         print(f"  Mean transition KL: {fit_summary['mean_transition_kl']:.6f}")
     print(f"Policies evaluated: {', '.join(sorted(all_policies.keys()))}")

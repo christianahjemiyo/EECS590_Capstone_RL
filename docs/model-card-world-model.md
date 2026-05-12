@@ -32,7 +32,7 @@ Supporting project context:
 - MIMIC-oriented preprocessing and modeling choices introduced in Version 2
 - tabular state abstractions and proxy actions already defined by the capstone
 
-The current Version 3 runner can also fit from trajectory-like transitions if available, but the main demonstrated workflow fits from the existing MDP arrays.
+The current Version 3 runner fits from trajectory-like transitions sampled from the existing tabular MDP so that the learned simulator is estimated from finite experience rather than copied directly from the full transition table.
 
 ## Inputs and Outputs
 

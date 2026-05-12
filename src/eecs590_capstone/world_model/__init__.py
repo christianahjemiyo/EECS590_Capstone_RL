@@ -12,6 +12,7 @@ original tabular MDP.
 
 from .evaluation import (
     compare_world_model_to_mdp,
+    evaluate_policy_in_mdp,
     evaluate_policy_in_world_model,
     save_metrics_csv,
 )
@@ -23,6 +24,7 @@ __all__ = [
     "WorldModelSimulator",
     "WorldModelStep",
     "compare_world_model_to_mdp",
+    "evaluate_policy_in_mdp",
     "evaluate_policy_in_world_model",
     "save_metrics_csv",
 ]

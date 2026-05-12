@@ -102,6 +102,7 @@ def make_policy_return_comparison(outdir: Path) -> None:
 def make_terminal_rate_comparison(outdir: Path) -> None:
     policy_eval_path = outdir / "policy_eval_world_model.csv"
     note_path = outdir / "readmission_or_terminal_rate_note.txt"
+    figure_path = outdir / "readmission_or_terminal_rate_comparison.png"
     if not policy_eval_path.exists():
         note_path.write_text(
             "Terminal-rate comparison was skipped because policy_eval_world_model.csv was not found.\n",
@@ -136,6 +137,20 @@ def make_terminal_rate_comparison(outdir: Path) -> None:
     filtered["policy_name"] = pd.Categorical(filtered["policy_name"], categories=target_policies, ordered=True)
     filtered = filtered.sort_values("policy_name")
 
+    if float(filtered["terminal_rate"].sum()) <= 0.0:
+        if figure_path.exists():
+            figure_path.unlink()
+            print(f"Removed redundant figure: {figure_path}")
+        note_path.write_text(
+            "Terminal-rate comparison was skipped because no evaluated baseline policy reached a terminal state "
+            "within the current rollout horizon. A readmission-rate plot would therefore be uninformative for "
+            "this run.\n",
+            encoding="utf-8",
+        )
+        print("Skipping terminal-rate comparison. No baseline policy reached a terminal state in this run.")
+        print(f"Wrote note: {note_path}")
+        return
+
     fig, ax = plt.subplots(figsize=(7, 4.5))
     ax.bar(filtered["policy_name"].astype(str), filtered["terminal_rate"])
     ax.set_title("Terminal-State Rate in the World Model Simulator")
@@ -145,10 +160,9 @@ def make_terminal_rate_comparison(outdir: Path) -> None:
     ax.tick_params(axis="x", rotation=15)
     fig.tight_layout()
 
-    path = outdir / "readmission_or_terminal_rate_comparison.png"
-    fig.savefig(path, dpi=160, bbox_inches="tight")
+    fig.savefig(figure_path, dpi=160, bbox_inches="tight")
     plt.close(fig)
-    print(f"Wrote: {path}")
+    print(f"Wrote: {figure_path}")
 
     note_text = (
         "The world-model outputs did not include a direct clinical readmission indicator. "

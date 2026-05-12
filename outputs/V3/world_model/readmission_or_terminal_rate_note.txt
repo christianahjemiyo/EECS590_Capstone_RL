@@ -1,1 +1,1 @@
-The world-model outputs did not include a direct clinical readmission indicator. This figure uses the available terminal-state rate from the learned simulator as a proxy summary.
+Terminal-rate comparison was skipped because no evaluated baseline policy reached a terminal state within the current rollout horizon. A readmission-rate plot would therefore be uninformative for this run.

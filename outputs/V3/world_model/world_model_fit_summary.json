@@ -1,10 +1,14 @@
 {
   "mdp_path": "C:\\Users\\Christianah\\GIT\\EECS590_Capstone_RL\\outputs\\v2_outputs\\mdp\\mdp.npz",
   "terminal_states": [],
-  "mean_transition_mae": 4.456988886754794e-13,
-  "mean_transition_mse": 3.010912434995789e-25,
-  "mean_reward_mae": 1.3068250185691946e-16,
-  "mean_transition_kl": -4.1761866490906654e-17,
+  "fit_source": "trajectories",
+  "n_training_trajectories": 200,
+  "n_training_transitions": 6000,
+  "mean_transition_mae": 0.02601459908184055,
+  "mean_transition_mse": 0.003567965527912342,
+  "mean_reward_mae": 0.08609813796797754,
+  "mean_transition_kl": 0.029166519118792634,
+  "mean_policy_return_gap": 0.5653804154265524,
   "n_policies_evaluated": 6,
   "policies": [
     "aggressive_policy",
