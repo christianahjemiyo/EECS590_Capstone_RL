@@ -1,0 +1,6 @@
+{
+  "episodes": 150.0,
+  "avg_return": -155.93825850970495,
+  "std_return": 19.41052062302869,
+  "terminal_rate": 0.0
+}

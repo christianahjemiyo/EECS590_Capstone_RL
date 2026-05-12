@@ -1,0 +1,12 @@
+{
+  "trial": 3.0,
+  "source": "bayesian_proposal",
+  "candidate": "no_5.29_late_m1.05_early_m8.16_cost_0.56",
+  "no_reward": 5.292090265315406,
+  "late_penalty": -1.0543346351246847,
+  "early_penalty": -8.16008600798348,
+  "cost_scale": 0.5584869335353122,
+  "score": 52.52988795470712,
+  "std_return": 16.104534789994798,
+  "terminal_rate": 0.0
+}

@@ -5,6 +5,8 @@ For Version 3 of this capstone, I implemented a world-model extension for my hos
 
 The Version 3 code adds a tabular world model, a simulator wrapper around that world model, evaluation utilities, a runnable script, figure generation, and lightweight tests. I kept the implementation simple and interpretable so it fits the scope of the capstone and stays aligned with the rest of the repository.
 
+I also added a lightweight Bayesian hyperparameter tuning workflow for reward and action-cost design. I included that because it is one of the most directly applicable post-Version-2 techniques for this capstone. Reward design materially affects policy behavior in the modeled readmission setting, so Bayesian tuning is a much better fit here than forcing in algorithms that do not match the environment structure.
+
 ## 2. Why I chose world models
 I chose world models because healthcare reinforcement learning cannot safely explore directly on patients. In my project, the underlying problem is sequential: discharge planning, follow-up intensity, and care-management choices interact over time. My existing work already models this as a tabular clinical MDP and compares multiple policies, but one of the biggest limitations is that patient transition dynamics and action effects are still modeled from limited logged data and proxy structure.
 
@@ -67,6 +69,7 @@ From the repository root, I can run Version 3 with:
 ```powershell
 python scripts/run_world_model_v3.py --mdp outputs/v2_outputs/mdp/mdp.npz --outdir outputs/V3/world_model
 python scripts/make_world_model_figures.py
+python scripts/run_bayesian_reward_tuning.py --base-config v2_pipeline/configs/mdp_sim_mimic.json --outdir outputs/V3/bayesian_tuning
 python -m pytest tests/test_world_model.py
 ```
 

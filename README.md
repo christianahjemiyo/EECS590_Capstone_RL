@@ -27,6 +27,7 @@ Version 3 adds:
 - A tabular world model for learning and simulating patient transitions.
 - A world-model simulator for decision-support simulation under modeled readmission risk.
 - Policy evaluation inside the learned simulator.
+- A lightweight Bayesian hyperparameter tuning workflow for reward and action-cost design.
 - Metrics and plots saved under `outputs/V3/world_model/`.
 - Documentation of implemented and not-implemented design choices.
 
@@ -123,6 +124,7 @@ Run the Version 3 world-model workflow from the repository root:
 ```powershell
 python scripts/run_world_model_v3.py --mdp outputs/v2_outputs/mdp/mdp.npz --outdir outputs/V3/world_model
 python scripts/make_world_model_figures.py
+python scripts/run_bayesian_reward_tuning.py --base-config v2_pipeline/configs/mdp_sim_mimic.json --outdir outputs/V3/bayesian_tuning
 python -m pytest tests/test_world_model.py
 ```
 
@@ -134,6 +136,7 @@ These commands fit the lightweight world model, generate decision-support simula
 - `outputs/v2_outputs/offline/`: offline RL outputs including FQI/CQL-style comparisons.
 - `outputs/v2_outputs/figures/`: saliency, reward-cost, family-overview, and policy-flow visualizations.
 - `outputs/V3/world_model/`: Version 3 world-model metrics, simulated policy evaluations, trajectory examples, summary notes, and interpretation figures.
+- `outputs/V3/bayesian_tuning/`: Version 3 Bayesian reward-tuning trials, best configuration summaries, and tuning progress artifacts.
 
 ## Technical Notes
 A few points matter for interpreting the results correctly:
@@ -142,6 +145,7 @@ A few points matter for interpreting the results correctly:
 - Reward design materially changes rankings, so rewards should be treated as a tunable modeling choice rather than a fixed truth.
 - Some advanced methods are intentionally included as adaptation studies to test algorithm-environment fit, not because they are always the most natural method for this MDP.
 - The Version 3 world model is also lightweight and tabular, so it should be interpreted as a modeled decision-support simulator rather than a real clinical environment.
+- The Bayesian tuning workflow is intentionally lightweight and applied to reward design because that is a more relevant post-V2 technique for this capstone than forcing unrelated architectures or multi-agent methods.
 
 ## Planned Next Improvements
 - Reward calibration as a hyperparameter search problem.
