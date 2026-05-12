@@ -23,7 +23,7 @@ def load_mdp(mdp_path: Path) -> TabularMDP:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train approximate RL algorithms on the simulated MDP.")
-    parser.add_argument("--mdp", type=str, default="outputs/V2/mdp/mdp.npz")
+    parser.add_argument("--mdp", type=str, default="outputs/v2_outputs/mdp/mdp.npz")
     parser.add_argument(
         "--algo",
         type=str,
@@ -39,7 +39,7 @@ def main() -> None:
     parser.add_argument("--eps-end", type=float, default=0.05)
     parser.add_argument("--eps-decay", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--outdir", type=str, default="outputs/V2/approx")
+    parser.add_argument("--outdir", type=str, default="outputs/v2_outputs/approx")
     args = parser.parse_args()
 
     env = MDPSimEnv(mdp_path=args.mdp, seed=args.seed, max_steps=args.max_steps)
@@ -101,3 +101,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

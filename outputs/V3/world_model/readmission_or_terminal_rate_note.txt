@@ -1,0 +1,1 @@
+The world-model outputs did not include a direct clinical readmission indicator. This figure uses the available terminal-state rate from the learned simulator as a proxy summary.

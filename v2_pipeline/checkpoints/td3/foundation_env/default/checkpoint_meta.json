@@ -1,0 +1,5 @@
+{
+  "algo": "td3",
+  "mdp": "outputs/v2_outputs/mdp/mdp.npz",
+  "outdir": "outputs\\v2_outputs\\advanced_td3"
+}

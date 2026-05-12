@@ -1,0 +1,25 @@
+Version 3 World Model Summary
+
+MDP source: C:\Users\Christianah\GIT\EECS590_Capstone_RL\outputs\v2_outputs\mdp\mdp.npz
+Output directory: C:\Users\Christianah\GIT\EECS590_Capstone_RL\outputs\V3\world_model
+
+Main fit metrics against the original tabular MDP:
+- Mean transition MAE: 0.000000
+- Mean transition MSE: 0.000000
+- Reward MAE: 0.000000
+- Mean transition KL divergence: -0.000000
+
+Included policies:
+- aggressive_policy
+- conservative_policy
+- random_policy
+- v2_double_q_policy
+- v2_dqn_policy
+- v2_tabular_q_policy
+
+Notes:
+- Saved V2 policies were included only when their JSON artifacts were already present and safely readable.
+
+Interpretation reminder:
+- This world model is a lightweight tabular decision-support simulator for modeled readmission risk.
+- It is intended for safe policy comparison inside the project MDP abstraction, not for clinical deployment.

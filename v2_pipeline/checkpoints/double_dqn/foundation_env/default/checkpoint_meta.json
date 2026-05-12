@@ -1,0 +1,5 @@
+{
+  "algo": "double_dqn",
+  "mdp": "outputs/v2_outputs/mdp/mdp.npz",
+  "outdir": "outputs\\v2_outputs\\deep_double_dqn"
+}

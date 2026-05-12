@@ -19,7 +19,7 @@ def load_mdp(mdp_path: Path) -> TabularMDP:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train deep and policy-gradient RL algorithms on the simulated MDP.")
-    parser.add_argument("--mdp", type=str, default="outputs/V2/mdp/mdp.npz")
+    parser.add_argument("--mdp", type=str, default="outputs/v2_outputs/mdp/mdp.npz")
     parser.add_argument(
         "--algo",
         type=str,
@@ -44,7 +44,7 @@ def main() -> None:
     parser.add_argument("--max-kl", type=float, default=0.02)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--outdir", type=str, default="outputs/V2/deep")
+    parser.add_argument("--outdir", type=str, default="outputs/v2_outputs/deep")
     args = parser.parse_args()
 
     env = MDPSimEnv(mdp_path=args.mdp, seed=args.seed, max_steps=args.max_steps)
@@ -122,7 +122,7 @@ def main() -> None:
     if result.Q is not None:
         save_json(outdir / "q_values.json", result.Q)
     if result.checkpoint is not None:
-        ckpt_dir = Path("V2/checkpoints") / args.algo / "foundation_env" / "default"
+        ckpt_dir = Path("v2_pipeline/checkpoints") / args.algo / "foundation_env" / "default"
         save_npz_checkpoint(ckpt_dir / "model_checkpoint.npz", result.checkpoint)
         save_json(ckpt_dir / "checkpoint_meta.json", {"algo": args.algo, "mdp": args.mdp, "outdir": str(outdir)})
 
@@ -132,3 +132,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

@@ -10,8 +10,11 @@ outputs/*
 !outputs/README.md
 !outputs/*.json
 !outputs/*.png
-!outputs/V2/
-!outputs/V2/**
+!outputs/v2_outputs/
+!outputs/v2_outputs/**
+!outputs/V3/
+!outputs/V3/world_model/
+!outputs/V3/world_model/**
 
 # Ignore raw/processed data
 data/raw/*
