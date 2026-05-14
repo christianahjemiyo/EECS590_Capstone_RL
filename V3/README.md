@@ -16,7 +16,7 @@ V3 uses the shared root dataset under `../data/` and the V2 benchmark artifacts 
 
 ## Start Here
 
-- `docs/version3-decisions.md`
+- `docs/instructor-report.md`
 - `docs/model-card-world-model.md`
 - `outputs/V3/world_model/`
 - `outputs/V3/bayesian_tuning/`
