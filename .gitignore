@@ -1,20 +1,9 @@
-﻿.venv/
+.venv/
 __pycache__/
 *.pyc
 .idea/
 .vscode/
 .DS_Store
-
-# Ignore outputs by default, but keep key artifacts for grading
-outputs/*
-!outputs/README.md
-!outputs/*.json
-!outputs/*.png
-!outputs/v2_outputs/
-!outputs/v2_outputs/**
-!outputs/V3/
-!outputs/V3/world_model/
-!outputs/V3/world_model/**
 
 # Ignore raw/processed data
 data/raw/*
@@ -26,4 +15,3 @@ data/processed/*
 
 # Pytest temp directories created on Windows
 pytest-cache-files-*/
-

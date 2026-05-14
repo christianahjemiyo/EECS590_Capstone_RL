@@ -1,0 +1,83 @@
+{
+  "n_states": 4,
+  "n_actions": 3,
+  "action_strengths": [
+    0.0,
+    0.12,
+    0.25
+  ],
+  "action_costs": [
+    0.0,
+    0.05,
+    0.1
+  ],
+  "reward_map": {
+    "<30": -10.0,
+    ">30": -2.0,
+    "NO": 4.0
+  },
+  "representation": {
+    "mode": "tokenizer_embedding",
+    "embedding_dim": 4,
+    "feature_columns": [
+      "encounter_id",
+      "patient_nbr",
+      "time_in_hospital",
+      "num_lab_procedures",
+      "num_medications",
+      "num_procedures",
+      "number_diagnoses",
+      "number_inpatient",
+      "number_emergency",
+      "number_outpatient",
+      "age",
+      "gender",
+      "admission_type",
+      "admission_location",
+      "discharge_location",
+      "insurance",
+      "language",
+      "marital_status",
+      "race",
+      "hospital_expire_flag"
+    ],
+    "label_values": [
+      "<30",
+      ">30",
+      "NO"
+    ],
+    "loss_curve": [
+      1.0086895306995676,
+      1.0028353275300332
+    ],
+    "numeric_columns": [
+      "encounter_id",
+      "patient_nbr",
+      "time_in_hospital",
+      "num_lab_procedures",
+      "num_medications",
+      "num_procedures",
+      "number_diagnoses",
+      "number_inpatient",
+      "number_emergency",
+      "number_outpatient",
+      "hospital_expire_flag"
+    ],
+    "categorical_columns": [
+      "age",
+      "gender",
+      "admission_type",
+      "admission_location",
+      "discharge_location",
+      "insurance",
+      "language",
+      "marital_status",
+      "race"
+    ]
+  },
+  "risk_bins": [
+    0.2,
+    0.5,
+    0.8
+  ]
+}

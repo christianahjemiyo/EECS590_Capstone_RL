@@ -1,0 +1,14 @@
+{
+  "mdp": "outputs/v2_outputs/mdp/mdp.npz",
+  "algo": "approx_q_learning",
+  "episodes": 5,
+  "max_steps": 5,
+  "alpha": 0.05,
+  "beta": 0.02,
+  "gamma": 0.99,
+  "eps_start": 1.0,
+  "eps_end": 0.05,
+  "eps_decay": 2000,
+  "seed": 7,
+  "outdir": "outputs/smoke_approx_q"
+}

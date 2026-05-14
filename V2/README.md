@@ -1,24 +1,21 @@
-# V2 Overview
+# V2
 
-`V2/` is the root-level navigation entry for the main capstone benchmark.
+`V2/` contains the main benchmark workflow.
 
-The actual V2 workflow lives in:
+## Contents
 
-- `v2_pipeline/`: V2-specific scripts, configs, docs, checkpoints, and related assets.
-- `outputs/v2_outputs/`: committed benchmark outputs, summaries, figures, and interpretation files.
+- `v2_pipeline/`: V2-specific scripts, configs, docs, checkpoints, replay-buffer notes, and architecture notes.
+- `scripts/`: thin V2 entry-point wrappers plus shared build/profile utilities used by the V2 workflow.
+- `src/`: V2-contained package code used by the benchmark.
+- `tests/`: V2-specific tests.
+- `outputs/v2_outputs/`: committed V2 benchmark outputs.
 
-## What V2 Adds
+## Data
 
-Relative to V1, Version 2 adds:
-
-- MIMIC-oriented preprocessing,
-- broader algorithm coverage,
-- shared benchmarking across RL families,
-- offline RL comparisons,
-- multi-seed summaries and interpretation outputs.
+The canonical dataset is shared at the repository root under `../data/`.
 
 ## Start Here
 
-- Operational runbook: `v2_pipeline/README.md`
-- Main benchmark outputs: `outputs/v2_outputs/benchmark/`
-- Broad algorithm comparison: `outputs/v2_outputs/all_algorithms/`
+- `v2_pipeline/README.md`
+- `outputs/v2_outputs/benchmark/summary_metrics.csv`
+- `outputs/v2_outputs/all_algorithms/summary_metrics.csv`

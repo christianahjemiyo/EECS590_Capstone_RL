@@ -1,27 +1,29 @@
-# V1 Overview
+# V1
 
-`V1/` is the root-level navigation entry for the original capstone scaffold.
+`V1/` contains the original capstone scaffold.
 
-Version 1 is not a separate code subtree in this repository. Its implementation is the reusable baseline project structure at the repository root:
+## Contents
 
-- `src/eecs590_capstone/`: base environments, agents, CLIs, and utilities.
-- `scripts/`: baseline data, MDP, training, evaluation, and plotting scripts.
-- `configs/`: compact configuration files for the initial scaffold.
-- `data/`: dataset layout used by the original workflow.
-- `outputs/mdp/` and `outputs/rl/`: representative baseline artifacts from the initial tabular workflow.
+- `configs/`: baseline environment and MDP configs.
+- `scripts/`: baseline preprocessing, MDP, training, evaluation, and plotting scripts.
+- `src/`: baseline package code.
+- `tests/`: baseline tests.
+- `outputs/`: baseline and smoke-test artifacts.
+- `docs/`: V1-specific notes.
 
-## What V1 Represents
+## Data
 
-V1 is the initial reproducible reinforcement-learning scaffold for hospital readmission planning. It focuses on:
+The canonical dataset is shared at the repository root under `../data/`.
 
-- a compact data-driven environment,
-- baseline and tabular RL policies,
-- dynamic-programming utilities,
-- simple evaluation and visualization outputs.
+## Typical Workflow
 
-## Start Here
+Run from `V1/` with:
 
-- Repository entry point: `README.md`
-- Baseline code: `src/eecs590_capstone/`
-- Baseline scripts: `scripts/`
-- Baseline outputs: `outputs/mdp/` and `outputs/rl/`
+```powershell
+$env:PYTHONPATH="src"
+python scripts/preprocess.py
+python scripts/data_profile.py
+python scripts/build_mdp.py
+python scripts/run_all_rl.py --runs 5
+python -m pytest tests/test_data_env.py
+```

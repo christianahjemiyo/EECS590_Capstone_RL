@@ -1,0 +1,16 @@
+{
+  "mdp": "outputs/v2_outputs/mdp/mdp.npz",
+  "algo": "expected_sarsa",
+  "episodes": 5,
+  "max_steps": 5,
+  "alpha": 0.1,
+  "gamma": 0.99,
+  "n": 3,
+  "lam": 0.8,
+  "planning_steps": 10,
+  "eps_start": 1.0,
+  "eps_end": 0.05,
+  "eps_decay": 2000,
+  "seed": 7,
+  "outdir": "outputs/smoke_expected_sarsa"
+}
