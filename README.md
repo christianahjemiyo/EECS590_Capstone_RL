@@ -7,6 +7,7 @@ The repository now has one primary story:
 - `v2_pipeline/` is the main experimental workflow and the version to review first.
 - The root package under `src/eecs590_capstone/` contains the reusable environments, agents, CLIs, and utilities used by both the original scaffold and the expanded benchmark.
 - `scripts/` contains dataset/MDP utilities, plotting, and orchestration scripts that sit on top of the reusable package code.
+- `V1/`, `V2/`, and `V3/` are root-level navigation folders so each project version is visible directly from the repository root.
 
 ## Research Question
 Can an RL agent learn a sequential discharge and follow-up policy that reduces 30-day readmissions compared with baseline strategies while maintaining or improving long-term recovery outcomes?
@@ -48,13 +49,19 @@ If you are reviewing the project for the first time, start with:
 5. `v2_pipeline/docs/technical-challenges.md`
 
 ## Versioning Notes
-Versioning is documented here rather than spread across multiple top-level project names.
+Versioning is documented here and also exposed through lightweight root-level navigation folders.
 
 - V1: initial reproducible scaffold using a data-driven environment, baseline policies, and tabular/DP training utilities.
 - V2: the main capstone workflow. Adds MIMIC-oriented preprocessing, broader algorithm coverage, multi-seed benchmarking, offline RL comparisons, saliency, checkpoint handling, and interpretation outputs.
 - V3: a lightweight world-model extension that supports learned transition simulation and safer offline policy evaluation inside the existing project structure.
 
+Root-level navigation:
+- `V1/`: index for the original scaffold.
+- `V2/`: index for the expanded benchmark workflow.
+- `V3/`: index for the world-model extension.
+
 ## Repository Structure
+- `V1/`, `V2/`, `V3/`: root-level version index folders for quick navigation on GitHub.
 - `src/eecs590_capstone/`: reusable package code.
   Includes environments, agents, MDP definitions, command-line entrypoints, shared utilities, and the Version 3 world-model module under `src/eecs590_capstone/world_model/`.
 - `scripts/`: top-level utilities and orchestration.
